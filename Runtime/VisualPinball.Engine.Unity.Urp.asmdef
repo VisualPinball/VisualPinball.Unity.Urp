@@ -1,0 +1,12 @@
+{
+	"name": "VisualPinball.Engine.Unity.Urp",
+	"references": [
+		"Unity.RenderPipelines.Universal.Runtime",
+		"VisualPinball.Engine",
+		"VisualPinball.Unity",
+		"VisualPinball.Unity.Patcher"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": true
+}
