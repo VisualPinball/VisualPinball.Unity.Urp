@@ -49,7 +49,7 @@ namespace VisualPinball.Unity.Urp
 			return Shader.Find("Universal Render Pipeline/Lit");
 		}
 
-		public UnityEngine.Material CreateMaterial(PbrMaterial vpxMaterial, TableAuthoring table, StringBuilder debug = null)
+		public UnityEngine.Material CreateMaterial(PbrMaterial vpxMaterial, TableAuthoring table, Type objectType, StringBuilder debug = null)
 		{
 			var unityMaterial = new UnityEngine.Material(GetShader())
 			{
