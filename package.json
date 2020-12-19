@@ -1,12 +1,14 @@
 {
   "name": "org.visualpinball.engine.unity.urp",
-  "version": "0.1.0",
+  "version": "0.0.1-preview.0",
   "displayName": "Visual Pinball Engine (URP)",
-  "description": "Adds support for the Universal Render Pipeline.",
+  "description": "Universal Render Pipeline support.",
+  "keywords": [ "Unity", "URP" ],
   "unity": "2020.2",
   "unityRelease": "0b12",
   "dependencies": {
-    "com.unity.render-pipelines.universal": "10.2.1"
+    "com.unity.render-pipelines.universal": "10.2.1",
+    "org.visualpinball.engine.unity": "0.0.1-preview.1"
   },
   "author": "freezy <freezy@vpdb.io>",
   "contributors": [
@@ -19,5 +21,12 @@
     "Kleis Auke Wolthuizen <info@kleisauke.nl>",
     "Eli Curtz <eli@nuprometheus.com>",
     "Pandeli"
-  ]
+  ],
+  "repository": {
+    "url": "https://github.com/VisualPinball/VisualPinball.Unity.Urp.git",
+    "type": "git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.visualpinball.org"
+  }
 }
