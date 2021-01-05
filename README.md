@@ -2,13 +2,15 @@
 
 *Universal Render Pipeline support for the Visual Pinball Engine.*
 
-## Where are we?
-
-![image](https://user-images.githubusercontent.com/70426/102701996-adc9b000-425d-11eb-87df-6a2e327a504a.png)
-
-## Notes
+## Setup
 
 Don't forget to set `ENABLE_HYBRID_RENDERER_V2`, otherwise you won't see anything rendered in play mode.
+
+## Dependency Graph
+
+This project is the starting point of the dependency graph.
+
+![image](https://user-images.githubusercontent.com/70426/103707712-71ad8380-4faf-11eb-8e8e-08a86cdc3860.png)
 
 ## License
 
