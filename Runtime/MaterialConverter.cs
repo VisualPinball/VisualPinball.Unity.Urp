@@ -22,6 +22,7 @@ using System;
 using System.Text;
 using UnityEngine;
 using VisualPinball.Engine.VPT;
+using Mesh = VisualPinball.Engine.VPT.Mesh;
 
 namespace VisualPinball.Unity.Urp
 {
@@ -34,12 +35,21 @@ namespace VisualPinball.Unity.Urp
 		private static readonly int Smoothness = Shader.PropertyToID("_Smoothness");
 		private static readonly int BaseMap = Shader.PropertyToID("_BaseMap");
 		private static readonly int NormalMap = Shader.PropertyToID("_BumpMap");
+		private static readonly int UVChannelVertices = Shader.PropertyToID("_UVChannelVertices");
+		private static readonly int UVChannelNormals = Shader.PropertyToID("_UVChannelNormals");
 
 		#endregion
 
 		public Shader GetShader()
 		{
 			return Shader.Find("Universal Render Pipeline/Lit");
+		}
+
+		private Shader GetShader(PbrMaterial vpxMaterial)
+		{
+			return vpxMaterial.VertexLerpWithUvEnabled
+				? Shader.Find("Visual Pinball/Srp/LerpVertex")
+				: GetShader();
 		}
 
 		public static UnityEngine.Material GetDefaultMaterial(BlendMode blendMode)
@@ -62,9 +72,14 @@ namespace VisualPinball.Unity.Urp
 		{
 			UnityEngine.Material defaultMaterial = GetDefaultMaterial(vpxMaterial.MapBlendMode);
 
-			var unityMaterial = new UnityEngine.Material(GetShader());
+			var unityMaterial = new UnityEngine.Material(GetShader(vpxMaterial));
 			unityMaterial.CopyPropertiesFromMaterial(defaultMaterial);
 			unityMaterial.name = vpxMaterial.Id;
+
+			if (vpxMaterial.VertexLerpWithUvEnabled) {
+				unityMaterial.SetFloat(UVChannelVertices, Mesh.AnimationUVChannelVertices);
+				unityMaterial.SetFloat(UVChannelNormals, Mesh.AnimationUVChannelNormals);
+			}
 
 			// apply some basic manipulations to the color. this just makes very
 			// very white colors be clipped to 0.8204 aka 204/255 is 0.8
