@@ -28,6 +28,9 @@ namespace VisualPinball.Unity.Urp
 {
 	public class MaterialConverter : IMaterialConverter
 	{
+		public UnityEngine.Material DotMatrixDisplay => UnityEngine.Resources.Load<UnityEngine.Material>("Materials/DotMatrixDisplay");
+		public UnityEngine.Material SegmentDisplay => UnityEngine.Resources.Load<UnityEngine.Material>("Materials/SegmentDisplay");
+
 		#region Shader Properties
 
 		private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
@@ -56,11 +59,11 @@ namespace VisualPinball.Unity.Urp
 		{
 			switch (blendMode)
 			{
-				case Engine.VPT.BlendMode.Opaque:
+				case BlendMode.Opaque:
 					return UnityEngine.Resources.Load<UnityEngine.Material>("Materials/TableOpaque");
-				case Engine.VPT.BlendMode.Cutout:
+				case BlendMode.Cutout:
 					return UnityEngine.Resources.Load<UnityEngine.Material>("Materials/TableCutout");
-				case Engine.VPT.BlendMode.Translucent:
+				case BlendMode.Translucent:
 					return UnityEngine.Resources.Load<UnityEngine.Material>("Materials/TableTranslucent");
 				default:
 					throw new ArgumentOutOfRangeException("Undefined blend mode " + blendMode);
@@ -93,7 +96,7 @@ namespace VisualPinball.Unity.Urp
 			}
 
 
-			if (vpxMaterial.MapBlendMode == Engine.VPT.BlendMode.Translucent)
+			if (vpxMaterial.MapBlendMode == BlendMode.Translucent)
 			{
 				col.a = Mathf.Min(1, Mathf.Max(0, vpxMaterial.Opacity));
 			}
