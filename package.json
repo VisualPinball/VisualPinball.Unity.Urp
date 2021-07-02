@@ -11,7 +11,7 @@
   "unityRelease": "0b12",
   "dependencies": {
     "com.unity.render-pipelines.universal": "10.2.1",
-    "org.visualpinball.engine.unity": "0.0.1-preview.52"
+    "org.visualpinball.engine.unity": "0.0.1-preview.53"
   },
   "author": "freezy <freezy@vpdb.io>",
   "contributors": [
