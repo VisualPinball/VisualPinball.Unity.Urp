@@ -22,14 +22,17 @@ using System;
 using System.Text;
 using UnityEngine;
 using VisualPinball.Engine.VPT;
+using Material = UnityEngine.Material;
 using Mesh = VisualPinball.Engine.VPT.Mesh;
 
 namespace VisualPinball.Unity.Urp
 {
 	public class MaterialConverter : IMaterialConverter
 	{
-		public UnityEngine.Material DotMatrixDisplay => UnityEngine.Resources.Load<UnityEngine.Material>("Materials/DotMatrixDisplay");
-		public UnityEngine.Material SegmentDisplay => UnityEngine.Resources.Load<UnityEngine.Material>("Materials/SegmentDisplay");
+		public Material DotMatrixDisplay => UnityEngine.Resources.Load<Material>("Materials/DotMatrixDisplay");
+		public Material SegmentDisplay => UnityEngine.Resources.Load<Material>("Materials/SegmentDisplay");
+
+		public int NormalMapProperty => NormalMap;
 
 		#region Shader Properties
 
@@ -55,27 +58,27 @@ namespace VisualPinball.Unity.Urp
 				: GetShader();
 		}
 
-		public static UnityEngine.Material GetDefaultMaterial(BlendMode blendMode)
+		public static Material GetDefaultMaterial(BlendMode blendMode)
 		{
 			switch (blendMode)
 			{
 				case BlendMode.Opaque:
-					return UnityEngine.Resources.Load<UnityEngine.Material>("Materials/TableOpaque");
+					return UnityEngine.Resources.Load<Material>("Materials/TableOpaque");
 				case BlendMode.Cutout:
-					return UnityEngine.Resources.Load<UnityEngine.Material>("Materials/TableCutout");
+					return UnityEngine.Resources.Load<Material>("Materials/TableCutout");
 				case BlendMode.Translucent:
-					return UnityEngine.Resources.Load<UnityEngine.Material>("Materials/TableTranslucent");
+					return UnityEngine.Resources.Load<Material>("Materials/TableTranslucent");
 				default:
 					throw new ArgumentOutOfRangeException("Undefined blend mode " + blendMode);
 			}
-
 		}
 
-		public UnityEngine.Material CreateMaterial(PbrMaterial vpxMaterial, TableAuthoring table, Type objectType, StringBuilder debug = null)
+		public Material CreateMaterial(PbrMaterial vpxMaterial, ITextureProvider textureProvider, Type objectType,
+			StringBuilder debug = null)
 		{
-			UnityEngine.Material defaultMaterial = GetDefaultMaterial(vpxMaterial.MapBlendMode);
+			Material defaultMaterial = GetDefaultMaterial(vpxMaterial.MapBlendMode);
 
-			var unityMaterial = new UnityEngine.Material(GetShader(vpxMaterial));
+			var unityMaterial = new Material(GetShader(vpxMaterial));
 			unityMaterial.CopyPropertiesFromMaterial(defaultMaterial);
 			unityMaterial.name = vpxMaterial.Id;
 
@@ -119,18 +122,16 @@ namespace VisualPinball.Unity.Urp
 			unityMaterial.SetFloat(Smoothness, vpxMaterial.Roughness);
 
 			// map
-			if (table != null && vpxMaterial.HasMap)
-			{
-				unityMaterial.SetTexture(BaseMap, table.GetTexture(vpxMaterial.Map.Name));
+			if (vpxMaterial.HasMap) {
+				unityMaterial.SetTexture(BaseMap, textureProvider.GetTexture(vpxMaterial.Map.Name));
 			}
 
 			// normal map
-			if (table != null && vpxMaterial.HasNormalMap)
-			{
+			if (vpxMaterial.HasNormalMap) {
 				unityMaterial.EnableKeyword("_NORMALMAP");
 				unityMaterial.EnableKeyword("_NORMALMAP_TANGENT_SPACE");
 
-				unityMaterial.SetTexture(NormalMap, table.GetTexture(vpxMaterial.NormalMap.Name));
+				unityMaterial.SetTexture(NormalMap, textureProvider.GetTexture(vpxMaterial.NormalMap.Name));
 			}
 
 			return unityMaterial;
