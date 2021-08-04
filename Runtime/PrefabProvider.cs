@@ -14,22 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// ReSharper disable UnusedType.Global
-// ReSharper disable CheckNamespace
+using UnityEngine;
+using VisualPinball.Unity;
 
 namespace VisualPinball.Unity.Urp
 {
-	public class UniversalRenderPipeline : IRenderPipeline
+	public class PrefabProvider : IPrefabProvider
 	{
-		public const string PrefabPath = "Packages/org.visualpinball.engine.unity.urp/Prefabs";
-
-		public string Name { get; } = "Universal Render Pipeline";
-
-		public RenderPipelineType Type { get; } = RenderPipelineType.Urp;
-		public IMaterialConverter MaterialConverter { get; } = new MaterialConverter();
-		public IMaterialAdapter MaterialAdapter { get; } = new MaterialAdapter();
-		public ILightConverter LightConverter { get; } = new LightConverter();
-		public IBallConverter BallConverter { get; } = new BallConverter();
-		public IPrefabProvider PrefabProvider { get; } = new PrefabProvider();
+		public GameObject CreateBumper()
+		{
+			return UnityEngine.Resources.Load<GameObject>("Prefabs/Bumper");
+		}
 	}
 }

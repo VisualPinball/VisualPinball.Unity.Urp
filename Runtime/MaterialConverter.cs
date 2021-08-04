@@ -127,5 +127,19 @@ namespace VisualPinball.Unity.Urp
 
 			return unityMaterial;
 		}
+
+		public Material MergeMaterials(PbrMaterial vpxMaterial, Material texturedMaterial)
+		{
+			var nonTexturedMaterial = CreateMaterial(vpxMaterial, null, null);
+			var mergedMaterial = new Material(GetShader());
+			mergedMaterial.CopyPropertiesFromMaterial(texturedMaterial);
+
+			mergedMaterial.name = nonTexturedMaterial.name;
+			mergedMaterial.SetColor(BaseColor, nonTexturedMaterial.GetColor(BaseColor));
+			mergedMaterial.SetFloat(Metallic, nonTexturedMaterial.GetFloat(Metallic));
+			mergedMaterial.SetFloat(Smoothness, nonTexturedMaterial.GetFloat(Smoothness));
+
+			return mergedMaterial;
+		}
 	}
 }
