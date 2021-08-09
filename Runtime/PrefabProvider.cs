@@ -69,5 +69,27 @@ namespace VisualPinball.Unity.Urp
 					throw new ArgumentException(nameof(type), $"Unknown target type {type}.");
 			}
 		}
+
+		public GameObject CreateKicker(int type)
+		{
+			switch (type) {
+				case KickerType.KickerCup:
+					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Cup");
+				case KickerType.KickerCup2:
+					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Cup 2");
+				case KickerType.KickerGottlieb:
+					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Gottlieb");
+				case KickerType.KickerHole:
+					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Hole");
+				case KickerType.KickerHoleSimple:
+					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Simple Hole");
+				case KickerType.KickerWilliams:
+					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Williams");
+				case KickerType.KickerInvisible:
+					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Invisible");
+				default:
+					throw new ArgumentException(nameof(type), $"Unknown kicker type {type}.");
+			}
+		}
 	}
 }
