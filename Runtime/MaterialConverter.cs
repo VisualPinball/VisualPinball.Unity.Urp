@@ -69,8 +69,7 @@ namespace VisualPinball.Unity.Urp
 			}
 		}
 
-		public Material CreateMaterial(PbrMaterial vpxMaterial, ITextureProvider textureProvider, Type objectType,
-			StringBuilder debug = null)
+		public Material CreateMaterial(PbrMaterial vpxMaterial, ITextureProvider textureProvider, StringBuilder debug = null)
 		{
 			Material defaultMaterial = GetDefaultMaterial(vpxMaterial.MapBlendMode);
 
@@ -130,7 +129,7 @@ namespace VisualPinball.Unity.Urp
 
 		public Material MergeMaterials(PbrMaterial vpxMaterial, Material texturedMaterial)
 		{
-			var nonTexturedMaterial = CreateMaterial(vpxMaterial, null, null);
+			var nonTexturedMaterial = CreateMaterial(vpxMaterial, null);
 			var mergedMaterial = new Material(GetShader());
 			mergedMaterial.CopyPropertiesFromMaterial(texturedMaterial);
 
