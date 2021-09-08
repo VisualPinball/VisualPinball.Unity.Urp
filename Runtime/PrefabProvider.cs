@@ -24,20 +24,20 @@ namespace VisualPinball.Unity.Urp
 	{
 		public GameObject CreateBumper()
 		{
-			return UnityEngine.Resources.Load<GameObject>("Prefabs/Bumper");
+			return Resources.Load<GameObject>("Prefabs/Bumper");
 		}
 
 		public GameObject CreateGate(int type)
 		{
 			switch (type) {
 				case GateType.GateLongPlate:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Gate - Long Plate");
+					return Resources.Load<GameObject>("Prefabs/Gate - Long Plate");
 				case GateType.GatePlate:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Gate - Plate");
+					return Resources.Load<GameObject>("Prefabs/Gate - Plate");
 				case GateType.GateWireRectangle:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Gate - Wire Rectangle");
+					return Resources.Load<GameObject>("Prefabs/Gate - Wire Rectangle");
 				case GateType.GateWireW:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Gate - Wire W");
+					return Resources.Load<GameObject>("Prefabs/Gate - Wire W");
 				default:
 					throw new ArgumentException(nameof(type), $"Unknown gate type {type}.");
 			}
@@ -47,19 +47,19 @@ namespace VisualPinball.Unity.Urp
 		{
 			switch (type) {
 				case KickerType.KickerCup:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Cup");
+					return Resources.Load<GameObject>("Prefabs/Kicker - Cup");
 				case KickerType.KickerCup2:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Cup 2");
+					return Resources.Load<GameObject>("Prefabs/Kicker - Cup 2");
 				case KickerType.KickerGottlieb:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Gottlieb");
+					return Resources.Load<GameObject>("Prefabs/Kicker - Gottlieb");
 				case KickerType.KickerHole:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Hole");
+					return Resources.Load<GameObject>("Prefabs/Kicker - Hole");
 				case KickerType.KickerHoleSimple:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Simple Hole");
+					return Resources.Load<GameObject>("Prefabs/Kicker - Simple Hole");
 				case KickerType.KickerWilliams:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Williams");
+					return Resources.Load<GameObject>("Prefabs/Kicker - Williams");
 				case KickerType.KickerInvisible:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Kicker - Invisible");
+					return Resources.Load<GameObject>("Prefabs/Kicker - Invisible");
 				default:
 					throw new ArgumentException(nameof(type), $"Unknown kicker type {type}.");
 			}
@@ -67,12 +67,12 @@ namespace VisualPinball.Unity.Urp
 
 		public GameObject CreateLight()
 		{
-			return UnityEngine.Resources.Load<GameObject>("Prefabs/Light");
+			return Resources.Load<GameObject>("Prefabs/Light");
 		}
 
 		public GameObject CreateSpinner()
 		{
-			return UnityEngine.Resources.Load<GameObject>("Prefabs/Spinner");
+			return Resources.Load<GameObject>("Prefabs/Spinner");
 		}
 
 		public GameObject CreateHitTarget(int type)
@@ -80,17 +80,17 @@ namespace VisualPinball.Unity.Urp
 			switch (type)
 			{
 				case TargetType.HitFatTargetRectangle:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Hit Target - Rectangle Fat");
+					return Resources.Load<GameObject>("Prefabs/Hit Target - Rectangle Fat");
 				case TargetType.HitFatTargetSlim:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Hit Target - Rectangle Fat Narrow");
+					return Resources.Load<GameObject>("Prefabs/Hit Target - Rectangle Fat Narrow");
 				case TargetType.HitFatTargetSquare:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Hit Target - Square Fat");
+					return Resources.Load<GameObject>("Prefabs/Hit Target - Square Fat");
 				case TargetType.HitTargetRectangle:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Hit Target - Rectangle");
+					return Resources.Load<GameObject>("Prefabs/Hit Target - Rectangle");
 				case TargetType.HitTargetRound:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Hit Target - Round");
+					return Resources.Load<GameObject>("Prefabs/Hit Target - Round");
 				case TargetType.HitTargetSlim:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Hit Target - Narrow");
+					return Resources.Load<GameObject>("Prefabs/Hit Target - Narrow");
 				default:
 					throw new ArgumentException(nameof(type), $"Unknown target type {type}.");
 			}
@@ -101,11 +101,11 @@ namespace VisualPinball.Unity.Urp
 			switch (type)
 			{
 				case TargetType.DropTargetBeveled:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Drop Target - Beveled");
+					return Resources.Load<GameObject>("Prefabs/Drop Target - Beveled");
 				case TargetType.DropTargetFlatSimple:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Drop Target - Simple Flat");
+					return Resources.Load<GameObject>("Prefabs/Drop Target - Simple Flat");
 				case TargetType.DropTargetSimple:
-					return UnityEngine.Resources.Load<GameObject>("Prefabs/Drop Target - Simple");
+					return Resources.Load<GameObject>("Prefabs/Drop Target - Simple");
 				default:
 					throw new ArgumentException(nameof(type), $"Unknown target type {type}.");
 			}
