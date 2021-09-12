@@ -45,24 +45,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a226873d073ee074d9091d357ea35254, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   _isLocked: 0
   _editorLayer: 0
-  _editorLayerName: 
+  _editorLayerName:
   _editorLayerVisibility: 1
   Position: {x: 0, y: 0}
   Radius: 25
   Orientation: 0
   _surface: {fileID: 0}
   Coils:
-  - Name: Default
-    Id: 
+  - Name: Default Coil
+    Id:
     Speed: 3
     Angle: 90
     Inclination: 0
   KickerType: 0
-  MeshName: 
+  MeshName:
 --- !u!114 &-2035473210646026864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,8 +73,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5693908cb88108f45a2fe3f59adeeabb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   PhysicsMaterial: {fileID: 0}
   ShowColliderMesh: 0
   ShowAabbs: 0
@@ -144,6 +144,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   ConversionMode: 1
