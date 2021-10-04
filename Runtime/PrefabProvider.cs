@@ -70,6 +70,11 @@ namespace VisualPinball.Unity.Urp
 			return Resources.Load<GameObject>("Prefabs/Light");
 		}
 
+		public GameObject CreateInsertLight()
+		{
+			return Resources.Load<GameObject>("Prefabs/Light - Insert");
+		}
+
 		public GameObject CreateSpinner()
 		{
 			return Resources.Load<GameObject>("Prefabs/Spinner");
