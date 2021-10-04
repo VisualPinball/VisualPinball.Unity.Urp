@@ -25,7 +25,7 @@ namespace VisualPinball.Unity.Urp
 {
 	public class LightConverter : ILightConverter
 	{
-		public void UpdateLight(Light light, LightData data)
+		public void UpdateLight(Light light, LightData data, bool isInsert)
 		{
 			// Set color and position
 			light.color = data.Color2.ToUnityColor();
@@ -38,6 +38,22 @@ namespace VisualPinball.Unity.Urp
 			light.shadows = LightShadows.Hard;
 			light.shadowBias = 0f;
 			light.shadowNearPlane = 0f;
+		}
+
+		public void SetColor(Light light, Color color)
+		{
+			light.color = color;
+		}
+
+		public void SetIntensity(Light light, float intensityLumen)
+		{
+			light.intensity = intensityLumen;
+		}
+
+		public void SpotLight(Light light, float outer, float innerPercent)
+		{
+			light.spotAngle = outer;
+			light.innerSpotAngle = outer * innerPercent * 0.01f;
 		}
 	}
 }
