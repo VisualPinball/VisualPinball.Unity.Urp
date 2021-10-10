@@ -23,7 +23,6 @@ using System.Text;
 using UnityEngine;
 using VisualPinball.Engine.VPT;
 using Material = UnityEngine.Material;
-using Mesh = VisualPinball.Engine.VPT.Mesh;
 
 namespace VisualPinball.Unity.Urp
 {
@@ -109,7 +108,7 @@ namespace VisualPinball.Unity.Urp
 			unityMaterial.SetFloat(Metallic, metallicValue);
 
 			// roughness / glossiness
-			unityMaterial.SetFloat(Smoothness, vpxMaterial.Roughness);
+			SetSmoothness(unityMaterial, vpxMaterial.Roughness);
 
 			// map
 			if (vpxMaterial.HasMap) {
@@ -127,6 +126,11 @@ namespace VisualPinball.Unity.Urp
 			return unityMaterial;
 		}
 
+		public void SetSmoothness(Material material, float smoothness)
+		{
+			material.SetFloat(Smoothness, smoothness);
+		}
+
 		public Material MergeMaterials(PbrMaterial vpxMaterial, Material texturedMaterial)
 		{
 			var nonTexturedMaterial = CreateMaterial(vpxMaterial, null);
@@ -139,6 +143,16 @@ namespace VisualPinball.Unity.Urp
 			mergedMaterial.SetFloat(Smoothness, nonTexturedMaterial.GetFloat(Smoothness));
 
 			return mergedMaterial;
+		}
+
+		public void SetDiffusionProfile(Material material, DiffusionProfileTemplate template)
+		{
+			// todo
+		}
+
+		public void SetMaterialType(Material material, MaterialType materialType)
+		{
+			// todo
 		}
 	}
 }

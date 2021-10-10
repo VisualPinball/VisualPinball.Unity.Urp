@@ -45,15 +45,31 @@ namespace VisualPinball.Unity.Urp
 			light.color = color;
 		}
 
+		public void SetShadow(Light light, bool enabled, bool isDynamic, float nearPlane = 0.01f)
+		{
+			light.shadows = enabled ? LightShadows.Soft : LightShadows.None;
+			light.shadowNearPlane = nearPlane;
+		}
+
 		public void SetIntensity(Light light, float intensityLumen)
 		{
 			light.intensity = intensityLumen;
+		}
+
+		public void SetTemperature(Light light, float temperature)
+		{
+			// todo
 		}
 
 		public void SpotLight(Light light, float outer, float innerPercent)
 		{
 			light.spotAngle = outer;
 			light.innerSpotAngle = outer * innerPercent * 0.01f;
+		}
+
+		public void PyramidAngle(Light light, float angle, float aspectRatio)
+		{
+			// urp has no pyramid spot light
 		}
 	}
 }
