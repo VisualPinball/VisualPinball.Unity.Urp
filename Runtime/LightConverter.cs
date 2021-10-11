@@ -35,9 +35,9 @@ namespace VisualPinball.Unity.Urp
 			light.transform.localPosition = new Vector3(0f, 0f, 25f);
 
 			// TODO: vpe specific shadow settings
-			light.shadows = LightShadows.Hard;
+			light.shadows = LightShadows.None;
 			light.shadowBias = 0f;
-			light.shadowNearPlane = 0f;
+			light.shadowNearPlane = 0.001f;
 		}
 
 		public void SetColor(Light light, Color color)
@@ -47,14 +47,15 @@ namespace VisualPinball.Unity.Urp
 
 		public void SetShadow(Light light, bool enabled, bool isDynamic, float nearPlane = 0.01f)
 		{
-			light.shadows = enabled ? LightShadows.Soft : LightShadows.None;
-			light.shadowNearPlane = nearPlane;
+			// light.shadows = enabled ? LightShadows.Soft : LightShadows.None;
+			// light.shadowNearPlane = nearPlane;
 		}
 
 		public void SetIntensity(Light light, float intensityLumen)
 		{
-			light.intensity = intensityLumen;
+			//light.intensity = intensityLumen / 1000f;
 		}
+
 
 		public void SetTemperature(Light light, float temperature)
 		{
