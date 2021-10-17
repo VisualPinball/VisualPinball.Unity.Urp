@@ -50,6 +50,10 @@ namespace VisualPinball.Unity.Urp
 			// light.shadows = enabled ? LightShadows.Soft : LightShadows.None;
 			// light.shadowNearPlane = nearPlane;
 		}
+		public void SetRange(Light light, float range)
+		{
+			light.range = range;
+		}
 
 		public void SetIntensity(Light light, float intensityLumen)
 		{
