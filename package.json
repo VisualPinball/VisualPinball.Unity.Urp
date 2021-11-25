@@ -1,6 +1,6 @@
 {
   "name": "org.visualpinball.engine.unity.urp",
-  "version": "0.0.1-preview.77",
+  "version": "0.0.1-preview.78",
   "displayName": "Visual Pinball Engine (URP)",
   "description": "Universal Render Pipeline support.",
   "keywords": [
