@@ -154,5 +154,17 @@ namespace VisualPinball.Unity.Urp
 		{
 			// todo
 		}
+
+		public void SetEmissiveColor(MaterialPropertyBlock propBlock, Color color)
+		{
+			// urp has no emissive color
+		}
+
+		public Color? GetEmissiveColor(Material material)
+		{
+			// urp has no emissive color
+
+			return null;
+		}
 	}
 }
