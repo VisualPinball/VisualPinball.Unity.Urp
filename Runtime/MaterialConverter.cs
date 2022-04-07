@@ -166,5 +166,15 @@ namespace VisualPinball.Unity.Urp
 
 			return null;
 		}
+		public void SetEmissiveIntensity(Material material, MaterialPropertyBlock propBlock, float intensity)
+		{
+			// urp has no emissive color
+		}
+
+		public float GetEmissiveIntensity(Material material)
+		{
+			// urp has no emissive color
+			return 0;
+		}
 	}
 }
