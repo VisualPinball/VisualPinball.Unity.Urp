@@ -26,12 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5581865781353071492}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1544373133874741422}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2485321816098713006
 MonoBehaviour:
@@ -64,6 +65,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -105,7 +107,6 @@ GameObject:
   - component: {fileID: 1544373133874741422}
   - component: {fileID: 4041090927828039183}
   - component: {fileID: -8167358012222226486}
-  - component: {fileID: 8363762864822562217}
   m_Layer: 0
   m_Name: Spinner
   m_TagString: Untagged
@@ -120,14 +121,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6563151203485904801}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6219072693502205359}
   - {fileID: 7410166794513211746}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4041090927828039183
 MonoBehaviour:
@@ -141,30 +143,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a0a88e7fbbf4524f8563c0a2dc75691, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _data:
-    StoragePrefix: 0
-    StorageIndex: -1
-    IsLocked: 0
-    EditorLayerName: 
-    EditorLayerVisibility: 1
-    Name: 
-    Center:
-      X: 0
-      Y: 0
-    Rotation: 0
-    Material: 
-    ShowBracket: 1
-    Height: 60
-    Length: 80
-    Damping: 0.9879
-    AngleMax: 0
-    AngleMin: 0
-    Elasticity: 0.3
-    IsVisible: 1
-    Image: 
-    Surface: 
-    IsTimerEnabled: 0
-    TimerInterval: 0
+  _isLocked: 0
+  _editorLayer: 0
+  _editorLayerName: 
+  _editorLayerVisibility: 1
   Position: {x: 0, y: 0}
   Height: 60
   Rotation: 0
@@ -187,21 +169,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PhysicsMaterial: {fileID: 0}
   ShowColliderMesh: 0
+  ShowColliderOctree: 0
   ShowAabbs: 0
   Elasticity: 0.3
---- !u!114 &8363762864822562217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6563151203485904801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConversionMode: 1
 --- !u!1 &7122666291571779558
 GameObject:
   m_ObjectHideFlags: 0
@@ -227,12 +197,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7122666291571779558}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1544373133874741422}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &874148291999414408
 MeshFilter:
@@ -253,6 +224,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
