@@ -115,5 +115,11 @@ namespace VisualPinball.Unity.Urp
 					throw new ArgumentException(nameof(type), $"Unknown target type {type}.");
 			}
 		}
+
+		public GameObject CreateFlipper() => Resources.Load<GameObject>("Prefabs/Flipper");
+		
+		public GameObject CreatePlunger() => Resources.Load<GameObject>("Prefabs/Plunger");
+
+		public GameObject CreateTrough() => Resources.Load<GameObject>("Prefabs/Trough");
 	}
 }

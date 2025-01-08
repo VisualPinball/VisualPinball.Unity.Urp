@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7014708109448554416}
   - component: {fileID: 3468265542873711340}
   - component: {fileID: 3496935618586042827}
+  - component: {fileID: -8496564910442952670}
   m_Layer: 0
   m_Name: Gate
   m_TagString: Gate
@@ -80,6 +81,24 @@ MonoBehaviour:
   Friction: 0.02
   GravityFactor: 0.25
   _twoWay: 0
+--- !u!114 &-8496564910442952670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4689510019247135382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8636086609386b04ea0fb6c9091f243b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundAsset: {fileID: 11400000, guid: 4a2249d0e5085344b92c6c998b2f3b97, type: 2}
+  _interrupt: 0
+  _volume: 1
+  _startWhen: 0
+  _stopWhen: 0
+  _switchName: gate_switch
 --- !u!1 &6497995796854627700
 GameObject:
   m_ObjectHideFlags: 0

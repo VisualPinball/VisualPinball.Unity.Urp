@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8936098568141045026}
   - component: {fileID: 197865258511769274}
   - component: {fileID: 1813312543483188556}
+  - component: {fileID: -6589036496633353385}
   m_Layer: 0
   m_Name: Bumper
   m_TagString: Untagged
@@ -79,6 +80,24 @@ MonoBehaviour:
   Scatter: 0
   HitEvent: 1
   _isKinematic: 0
+--- !u!114 &-6589036496633353385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 642515788050218447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1b4677b6b0e8bc419afb6cd7a22cf3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundAsset: {fileID: 11400000, guid: 02a8bdb34c86f49488fbcbfcf58a0773, type: 2}
+  _interrupt: 0
+  _volume: 1
+  _startWhen: 0
+  _stopWhen: 0
+  _coilName: Bumper
 --- !u!1 &2782857395794746971
 GameObject:
   m_ObjectHideFlags: 0
