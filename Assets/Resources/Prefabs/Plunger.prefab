@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4360165373544367127}
   - component: {fileID: 758323825446027854}
   - component: {fileID: 6875191637992584632}
+  - component: {fileID: 8198728604523717435}
   m_Layer: 0
   m_Name: Plunger
   m_TagString: Untagged
@@ -120,6 +121,24 @@ MonoBehaviour:
   _startWhen: 1
   _stopWhen: 0
   _coilName: c_pull
+--- !u!114 &8198728604523717435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3492958815385962431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1b4677b6b0e8bc419afb6cd7a22cf3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soundAsset: {fileID: 11400000, guid: 1db86f03e09f46740a32096157585e5d, type: 2}
+  _interrupt: 0
+  _volume: 1
+  _startWhen: 0
+  _stopWhen: 0
+  _coilName: c_autofire
 --- !u!1 &3501041183407321805
 GameObject:
   m_ObjectHideFlags: 0
