@@ -5,13 +5,13 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true 
       - name: Fetch next version
         id: nextVersion
-        uses: VisualPinball/next-version-action@v0.1.6
+        uses: VisualPinball/next-version-action@v0
         with:
           tagPrefix: 'v'
       - name: Bump
@@ -34,16 +34,15 @@ jobs:
           git commit -m "release: ${{ steps.nextVersion.outputs.nextTag }}."
           git push
           commitish=$(git rev-parse HEAD)
-          echo ::set-output name=commitish::${commitish}
+          echo "commitish=${commitish}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.nextVersion.outputs.nextTag }}
-          release_name: ${{ steps.nextVersion.outputs.nextTag }}
-          prerelease: ${{ steps.nextVersion.outputs.isPrerelease }}
-          commitish: ${{ steps.commit.outputs.commitish }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            tag_name: ${{ steps.nextVersion.outputs.nextTag }}
+            name: ${{ steps.nextVersion.outputs.nextTag }}
+            prerelease: ${{ steps.nextVersion.outputs.isPrerelease }}
+            target_commitish: ${{ steps.commit.outputs.commitish }}
+            token: ${{ secrets.GITHUB_TOKEN }}
 
