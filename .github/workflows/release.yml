@@ -1,0 +1,51 @@
+on: [push, pull_request]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true 
+      - name: Fetch next version
+        id: nextVersion
+        uses: VisualPinball/next-version-action@v0
+        with:
+          tagPrefix: 'v'
+      - name: Bump
+        if: ${{ steps.nextVersion.outputs.isBump == 'true' }} 
+        run: |
+          npm version ${{ steps.nextVersion.outputs.nextVersion }} --no-git-tag-version    
+      - name: Commit
+        id: commit
+        if: ${{ steps.nextVersion.outputs.isBump == 'true' }} 
+        run: |
+          git config user.name "github-actions"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "release: ${{ steps.nextVersion.outputs.nextTag }}."
+          git push
+          commitish=$(git rev-parse HEAD)
+          echo "commitish=${commitish}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+            tag_name: ${{ steps.nextVersion.outputs.nextTag }}
+            name: ${{ steps.nextVersion.outputs.nextTag }}
+            prerelease: ${{ steps.nextVersion.outputs.isPrerelease }}
+            target_commitish: ${{ steps.commit.outputs.commitish }}
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+  dispatch:
+    runs-on: ubuntu-latest
+    needs: [ release ]
+    steps:
+    - name: Repository Dispatch
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        event-type: release-complete
+
