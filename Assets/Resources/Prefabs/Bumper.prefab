@@ -50,15 +50,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fbf8908cf17c554ab7afb9da3d6775a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLocked: 0
   _editorLayer: 0
   _editorLayerName: 
   _editorLayerVisibility: 1
-  Position: {x: 0, y: 0}
   Radius: 45
-  HeightScale: 90
-  Orientation: 0
-  _surface: {fileID: 0}
+  IsHardwired: 1
 --- !u!114 &1813312543483188556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,11 +71,11 @@ MonoBehaviour:
   ShowColliderMesh: 0
   ShowColliderOctree: 0
   ShowAabbs: 0
+  _isKinematic: 0
   Threshold: 1
   Force: 15
   Scatter: 0
   HitEvent: 1
-  _isKinematic: 0
 --- !u!114 &-6589036496633353385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,12 +88,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1b4677b6b0e8bc419afb6cd7a22cf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: 02a8bdb34c86f49488fbcbfcf58a0773, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 0
-  _stopWhen: 0
-  _coilName: Bumper
+  SoundAsset: {fileID: 11400000, guid: 02a8bdb34c86f49488fbcbfcf58a0773, type: 2}
+  MultiPlayMode: 0
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 0
+  StopWhen: 0
+  CoilName: ring_coil
 --- !u!1 &2782857395794746971
 GameObject:
   m_ObjectHideFlags: 0
@@ -156,6 +154,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -254,6 +255,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -325,6 +329,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd0d18debfb7e9d4f96b044b58b0e9b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  duration: 0.1
 --- !u!33 &4793535054648316060
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -350,6 +355,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -433,6 +441,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:

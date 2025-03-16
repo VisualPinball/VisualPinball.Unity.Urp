@@ -50,15 +50,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1591b5a0bc15604fb622d417b509185, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLocked: 0
   _editorLayer: 0
   _editorLayerName: 
   _editorLayerVisibility: 1
-  Position: {x: 0, y: 0}
   Width: 25
   Height: 20
-  ZAdjust: 0
-  _surface: {fileID: 0}
   analogPlungerAction: {fileID: 0}
 --- !u!114 &4360165373544367127
 MonoBehaviour:
@@ -76,6 +72,7 @@ MonoBehaviour:
   ShowColliderMesh: 1
   ShowColliderOctree: 0
   ShowAabbs: 0
+  _isKinematic: 0
   SpeedPull: 0.5
   SpeedFire: 80
   Stroke: 80
@@ -97,12 +94,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1b4677b6b0e8bc419afb6cd7a22cf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: 29e4e44178845b941a136cf944a6b484, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 0
-  _stopWhen: 0
-  _coilName: c_pull
+  SoundAsset: {fileID: 11400000, guid: 29e4e44178845b941a136cf944a6b484, type: 2}
+  MultiPlayMode: 3
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 0
+  StopWhen: 0
+  CoilName: c_pull
 --- !u!114 &6875191637992584632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,12 +114,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1b4677b6b0e8bc419afb6cd7a22cf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: 1db86f03e09f46740a32096157585e5d, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 1
-  _stopWhen: 0
-  _coilName: c_pull
+  SoundAsset: {fileID: 11400000, guid: 1db86f03e09f46740a32096157585e5d, type: 2}
+  MultiPlayMode: 3
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 0
+  StopWhen: 0
+  CoilName: c_autofire
 --- !u!114 &8198728604523717435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,12 +134,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1b4677b6b0e8bc419afb6cd7a22cf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: 1db86f03e09f46740a32096157585e5d, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 0
-  _stopWhen: 0
-  _coilName: c_autofire
+  SoundAsset: {fileID: 11400000, guid: 1db86f03e09f46740a32096157585e5d, type: 2}
+  MultiPlayMode: 3
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 1
+  StopWhen: 0
+  CoilName: c_pull
 --- !u!1 &3501041183407321805
 GameObject:
   m_ObjectHideFlags: 0

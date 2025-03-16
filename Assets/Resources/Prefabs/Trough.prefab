@@ -46,7 +46,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 426f115d8fbd6914bb7c67e1cc410097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLocked: 0
   _editorLayer: 0
   _editorLayerName: 
   _editorLayerVisibility: 1
@@ -74,12 +73,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8636086609386b04ea0fb6c9091f243b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: 249faf8343847964c8a56371a8c737b1, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 0
-  _stopWhen: 0
-  _switchName: ball_switch_6
+  SoundAsset: {fileID: 11400000, guid: 249faf8343847964c8a56371a8c737b1, type: 2}
+  MultiPlayMode: 0
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 0
+  StopWhen: 0
+  SwitchName: ball_switch_1
 --- !u!114 &2596899900856616474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,9 +93,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1b4677b6b0e8bc419afb6cd7a22cf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: 793216df1889fdd4e93ea22639af1b78, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 0
-  _stopWhen: 0
-  _coilName: eject_coil
+  SoundAsset: {fileID: 11400000, guid: 793216df1889fdd4e93ea22639af1b78, type: 2}
+  MultiPlayMode: 0
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 0
+  StopWhen: 0
+  CoilName: eject_coil
