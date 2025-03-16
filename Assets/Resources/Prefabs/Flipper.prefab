@@ -156,14 +156,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 545ad741f74d2444faf5d2882fba6b69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLocked: 0
   _editorLayer: 0
   _editorLayerName: 
   _editorLayerVisibility: 1
-  Position: {x: 0, y: 0}
-  _startAngle: 121
   EndAngle: 70
-  _surface: {fileID: 0}
   IsEnabled: 1
   IsDualWound: 0
   _height: 50
@@ -192,6 +188,7 @@ MonoBehaviour:
   ShowColliderMesh: 1
   ShowColliderOctree: 0
   ShowAabbs: 0
+  _isKinematic: 0
   Mass: 1
   Strength: 2200
   Elasticity: 0.8
@@ -232,9 +229,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1b4677b6b0e8bc419afb6cd7a22cf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: e410f0a19022a1a49b7a2dd9226ae7d1, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 0
-  _stopWhen: 0
-  _coilName: main_coil
+  SoundAsset: {fileID: 11400000, guid: e410f0a19022a1a49b7a2dd9226ae7d1, type: 2}
+  MultiPlayMode: 0
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 0
+  StopWhen: 0
+  CoilName: main_coil

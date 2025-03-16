@@ -48,14 +48,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d975b3eb6ff5d434e8e9f7cd282fa881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLocked: 0
   _editorLayer: 0
   _editorLayerName: 
   _editorLayerVisibility: 1
-  Position: {x: 0, y: 0, z: 0}
-  _rotation: 0
   _length: 100
-  _surface: {fileID: 0}
   _type: 0
   _meshName: 
 --- !u!114 &3496935618586042827
@@ -74,8 +70,11 @@ MonoBehaviour:
   ShowColliderMesh: 0
   ShowColliderOctree: 0
   ShowAabbs: 0
+  _isKinematic: 0
   _angleMax: 90
   _angleMin: 0
+  ZLow: -50
+  Distance: 0
   Damping: 0.985
   Elasticity: 0.3
   Friction: 0.02
@@ -93,12 +92,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8636086609386b04ea0fb6c9091f243b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: 4a2249d0e5085344b92c6c998b2f3b97, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 0
-  _stopWhen: 0
-  _switchName: gate_switch
+  SoundAsset: {fileID: 11400000, guid: 637e47dbe455b3c489cd6e180e285cf1, type: 2}
+  MultiPlayMode: 0
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 0
+  StopWhen: 0
+  SwitchName: gate_switch
 --- !u!1 &6497995796854627700
 GameObject:
   m_ObjectHideFlags: 0
@@ -157,6 +158,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -228,6 +232,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3246946b24b0f940b90770737255e03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  min: 3.4028235e+38
+  max: -3.4028235e+38
 --- !u!33 &7906856659845120077
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -253,6 +259,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:

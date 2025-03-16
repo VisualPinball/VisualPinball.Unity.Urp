@@ -114,6 +114,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
@@ -151,9 +154,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8636086609386b04ea0fb6c9091f243b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _soundAsset: {fileID: 11400000, guid: a13a0ebac95142a4d838dddbb8fbe85e, type: 2}
-  _interrupt: 0
-  _volume: 1
-  _startWhen: 0
-  _stopWhen: 0
-  _switchName: slingshot_switch
+  SoundAsset: {fileID: 11400000, guid: a13a0ebac95142a4d838dddbb8fbe85e, type: 2}
+  MultiPlayMode: 0
+  Volume: 1
+  Priority: 2
+  CalloutMaxQueueTime: -1
+  StartWhen: 0
+  StopWhen: 0
+  SwitchName: slingshot_switch
