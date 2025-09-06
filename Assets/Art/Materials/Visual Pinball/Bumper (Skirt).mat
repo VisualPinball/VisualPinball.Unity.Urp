@@ -17,14 +17,17 @@ MonoBehaviour:
   m_MaterialReferences: []
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Bumper (Skirt)
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_ShaderKeywords: 
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -38,6 +41,7 @@ Material:
   - TransparentDepthPostpass
   - TransparentBackface
   - RayTracingPrepass
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -126,7 +130,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 3c63e15e4d123e245b53f07b6f837a87, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
@@ -233,6 +237,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AORemapMax: 1
     - _AORemapMin: 0.9155405
@@ -253,6 +258,7 @@ Material:
     - _AxF_BRDFType: 0
     - _Blend: 0
     - _BlendMode: 0
+    - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
     - _CarPaint2_BRDFColorMapScale: 1
     - _CarPaint2_BTFFlakeMapScale: 1
@@ -297,6 +303,7 @@ Material:
     - _DoubleSidedEnable: 0
     - _DoubleSidedNormalMode: 1
     - _DstBlend: 0
+    - _DstBlendAlpha: 0
     - _EmissiveColorMode: 1
     - _EmissiveExposureWeight: 1
     - _EmissiveIntensity: 1
@@ -360,6 +367,7 @@ Material:
     - _SpecularHighlights: 1
     - _SpecularOcclusionMode: 1
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _StencilRef: 0
     - _StencilRefDepth: 8
     - _StencilRefDistortionVec: 4
@@ -391,6 +399,7 @@ Material:
     - _UseEmissiveIntensity: 0
     - _UseShadowThreshold: 0
     - _WorkflowMode: 1
+    - _XRMotionVectorsPass: 1
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
     - _ZTestModeDistortion: 4
@@ -406,7 +415,8 @@ Material:
     - _CarPaint2_CTSpreads: {r: 1, g: 1, b: 1, a: 0}
     - _ClearcoatNormalMap_SO: {r: 1, g: 1, b: 0, a: 0}
     - _Color: {r: 0.745283, g: 0.7286133, b: 0.66442686, a: 1}
-    - _DiffusionProfileAsset: {r: -1.0489695e-36, g: -3.621176e-36, b: 9.418237e-25, a: 6.583603e+19}
+    - _DiffusionProfileAsset: {r: -1.0489695e-36, g: -3.621176e-36, b: 9.418237e-25,
+        a: 6.583603e+19}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
@@ -433,6 +443,7 @@ Material:
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &1343795069601421370
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -445,7 +456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 4
+  version: 10
 --- !u!114 &7091297094133126750
 MonoBehaviour:
   m_ObjectHideFlags: 11
