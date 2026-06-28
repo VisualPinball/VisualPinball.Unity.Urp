@@ -17,6 +17,7 @@
 using System;
 using UnityEngine;
 using VisualPinball.Engine.VPT;
+using VisualPinball.Unity.Editor;
 
 namespace VisualPinball.Unity.Urp
 {

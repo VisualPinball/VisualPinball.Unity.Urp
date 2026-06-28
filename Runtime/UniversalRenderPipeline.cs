@@ -27,9 +27,7 @@ namespace VisualPinball.Unity.Urp
 
 		public RenderPipelineType Type { get; } = RenderPipelineType.Urp;
 		public IMaterialConverter MaterialConverter { get; } = new MaterialConverter();
-		public IMaterialAdapter MaterialAdapter { get; } = new MaterialAdapter();
 		public ILightConverter LightConverter { get; } = new LightConverter();
 		public IBallConverter BallConverter { get; } = new BallConverter();
-		public IPrefabProvider PrefabProvider { get; } = new PrefabProvider();
 	}
 }
