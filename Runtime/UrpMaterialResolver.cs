@@ -119,6 +119,10 @@ namespace VisualPinball.Unity.Urp
 					material.SetTexture(OcclusionMapId, mask);
 					material.EnableKeyword("_OCCLUSIONMAP");
 					material.SetFloat(OcclusionStrengthId, lit.OcclusionStrength);
+					// URP computes smoothness = mask.a * _Smoothness; HDRP uses lerp(remapMin,remapMax,mask.a)
+					// and ignores the scalar when a mask is present. Use the remap max so mask.a drives
+					// smoothness fully instead of being scaled down by the (mask-irrelevant) scalar.
+					material.SetFloat(SmoothnessId, lit.SmoothnessRemap.y);
 				}
 			}
 
