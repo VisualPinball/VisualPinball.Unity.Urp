@@ -1,0 +1,23 @@
+{
+	"name": "VisualPinball.Engine.Unity.Urp.Editor",
+	"rootNamespace": "VisualPinball.Unity.Urp",
+	"references": [
+		"VisualPinball.Engine",
+		"VisualPinball.Engine.Editor",
+		"VisualPinball.Unity",
+		"VisualPinball.Unity.Patcher",
+		"VisualPinball.Unity.Editor",
+		"VisualPinball.Engine.Unity.Urp",
+		"Unity.RenderPipelines.Core.Runtime",
+		"Unity.RenderPipelines.Universal.Runtime"
+	],
+	"includePlatforms": [ "Editor" ],
+	"excludePlatforms": [],
+	"allowUnsafeCode": true,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [],
+	"noEngineReferences": false
+}

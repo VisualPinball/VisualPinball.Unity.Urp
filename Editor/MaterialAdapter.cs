@@ -19,6 +19,7 @@
 
 using NLog;
 using UnityEngine;
+using VisualPinball.Unity.Editor;
 using Logger = NLog.Logger;
 
 namespace VisualPinball.Unity.Urp
