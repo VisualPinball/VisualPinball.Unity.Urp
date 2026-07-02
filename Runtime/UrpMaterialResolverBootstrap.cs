@@ -22,10 +22,15 @@ using VisualPinball.Unity;
 namespace VisualPinball.Unity.Urp
 {
 	// Registers the URP material resolver with VpeMaterialResolver before any scene loads, the
-	// same pattern as the HDRP package's VpeMaterialResolverBootstrap.
+	// same pattern as the HDRP package's VpeMaterialResolverBootstrap. Also registers the light
+	// unit adjuster that converts authored HDRP-physical light intensities into URP's units.
 	public static class UrpMaterialResolverBootstrap
 	{
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-		private static void Register() => VpeMaterialResolver.Register(new UrpMaterialResolver());
+		private static void Register()
+		{
+			VpeMaterialResolver.Register(new UrpMaterialResolver());
+			VpeLightUnitAdjuster.Register(UrpPhysicalUnits.AdjustRestoredLight);
+		}
 	}
 }
