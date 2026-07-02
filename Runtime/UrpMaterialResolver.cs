@@ -61,6 +61,7 @@ namespace VisualPinball.Unity.Urp
 			return materialType switch {
 				VpeMaterialTypes.Lit => true,
 				VpeMaterialTypes.Insert => true,
+				VpeMaterialTypes.Decal => true,
 				VpeMaterialTypes.Metal => true,
 				VpeMaterialTypes.Rubber => true,
 				VpeMaterialTypes.FabricSilk => true,
@@ -78,6 +79,9 @@ namespace VisualPinball.Unity.Urp
 			if (profile.Type == VpeMaterialTypes.Insert) {
 				return BuildInsert(profile, textures, importedMaterial);
 			}
+			if (profile.Type == VpeMaterialTypes.Decal) {
+				return BuildDecal(profile, textures, importedMaterial);
+			}
 
 			var lit = profile.Lit;
 			if (lit == null && profile.Fabric != null) {
@@ -90,6 +94,78 @@ namespace VisualPinball.Unity.Urp
 
 			return BuildLit(profile.Name, lit, textures, importedMaterial);
 		}
+
+		#region Decals
+
+		// vpe.decal is authored as a decal *mesh* in VPE tables: dedicated geometry floating a
+		// hair above the surface it decorates, with the albedo alpha controlling where the decal
+		// applies. URP's decal system only handles projectors, so the URP realization renders the
+		// same mesh with an alpha-blended lit overlay built from the decal inputs. In HDRP the
+		// glb fallback for these meshes is a texture-free HDRP/Decal clone (invisible under URP),
+		// which is why unsupported decals show nothing rather than something white.
+		private static Material BuildDecal(VpeMaterialProfile profile, IVpeTextureProvider textures, Material imported)
+		{
+			var decal = profile.Decal;
+			if (decal == null || !LitShader) {
+				return null;
+			}
+
+			var material = new Material(LitShader) { name = profile.Name, enableInstancing = true };
+
+			var baseColor = (Color)decal.BaseColor.Color;
+			// HDRP's Decal Blend scales the whole decal's opacity; fold it into the base alpha.
+			baseColor.a *= Mathf.Clamp01(decal.DecalBlend);
+			material.SetColor(BaseColorId, baseColor);
+			var baseTex = ResolveTexture(decal.BaseColor.Texture, textures, imported, "_BaseMap");
+			if (baseTex) {
+				material.SetTexture(BaseMapId, baseTex);
+				ApplyScaleOffset(material, BaseMapId, decal.BaseColor.Texture);
+			}
+
+			material.SetFloat(MetallicId, decal.Metallic);
+			material.SetFloat(SmoothnessId, decal.Smoothness);
+
+			// Same HDRP mask-map reuse as BuildLit: R=metallic/A=smoothness feed _MetallicGlossMap,
+			// G=AO feeds _OcclusionMap.
+			if (decal.AffectMask && decal.MaskMap != null && !string.IsNullOrWhiteSpace(decal.MaskMap.TextureId)
+				&& decal.MaskPacking == VpeMaskPackings.HdrpMaskMap) {
+				var mask = textures?.Get(decal.MaskMap.TextureId);
+				if (mask) {
+					material.SetTexture(MetallicGlossMapId, mask);
+					material.EnableKeyword("_METALLICSPECGLOSSMAP");
+					material.SetTexture(OcclusionMapId, mask);
+					material.EnableKeyword("_OCCLUSIONMAP");
+					material.SetFloat(OcclusionStrengthId, decal.AmbientOcclusion);
+				}
+			}
+
+			var normalTex = decal.AffectNormal
+				? ResolveTexture(decal.NormalMap?.TextureId, textures, imported, "_BumpMap")
+				: null;
+			if (normalTex) {
+				material.SetTexture(BumpMapId, normalTex);
+				material.SetFloat(BumpScaleId, decal.NormalMap.Strength);
+				material.EnableKeyword("_NORMALMAP");
+				ApplyScaleOffset(material, BumpMapId, decal.NormalMap.Offset, decal.NormalMap.Scale);
+			}
+
+			// Transparent alpha overlay: the base-map alpha decides where the decal applies.
+			material.SetFloat(SurfaceId, 1f);
+			material.SetFloat(AlphaClipId, 0f);
+			material.DisableKeyword("_ALPHATEST_ON");
+			material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+			material.SetFloat(BlendId, 0f);
+			material.SetFloat(SrcBlendId, (float)BlendMode.SrcAlpha);
+			material.SetFloat(DstBlendId, (float)BlendMode.OneMinusSrcAlpha);
+			material.SetFloat(ZWriteId, 0f);
+			material.SetOverrideTag("RenderType", "Transparent");
+			material.renderQueue = (int)RenderQueue.Transparent;
+			material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+
+			return material;
+		}
+
+		#endregion
 
 		#region Inserts
 
