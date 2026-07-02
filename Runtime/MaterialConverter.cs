@@ -155,28 +155,45 @@ namespace VisualPinball.Unity.Urp
 			// todo
 		}
 
+		// URP/Lit has a single HDR _EmissionColor instead of HDRP's LDR-color + intensity split.
+		// The equivalent semantics used here: intensity = max component of the material's emission
+		// color, chroma = emission color normalized by that maximum. GetEmissiveIntensity therefore
+		// returns the authored full-on intensity (the baseline LightComponent remembers), and
+		// SetEmissiveIntensity rebuilds chroma × intensity into the property block.
+
+		private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+
 		public void SetEmissiveColor(MaterialPropertyBlock propBlock, Color color)
 		{
-			// urp has no emissive color
+			propBlock.SetColor(EmissionColor, color);
 		}
 
 		public Color? GetEmissiveColor(Material material)
 		{
-			// urp has no emissive color
-
-			return null;
+			if (!material || !material.HasProperty(EmissionColor)) {
+				return null;
+			}
+			return material.GetColor(EmissionColor);
 		}
 
 		public void SetEmissiveIntensity(Material material, MaterialPropertyBlock propBlock, float intensity)
 		{
-			// urp has no emissive intensity
+			if (!material || !material.HasProperty(EmissionColor)) {
+				return;
+			}
+			var baseline = material.GetColor(EmissionColor);
+			var max = baseline.maxColorComponent;
+			var chroma = max > 0f ? baseline / max : Color.white;
+			chroma.a = 1f;
+			propBlock.SetColor(EmissionColor, chroma * intensity);
 		}
 
 		public float GetEmissiveIntensity(Material material)
 		{
-			// urp has no emissive intensity
-			//
-			return 0;
+			if (!material || !material.HasProperty(EmissionColor) || !material.IsKeywordEnabled("_EMISSION")) {
+				return 0;
+			}
+			return material.GetColor(EmissionColor).maxColorComponent;
 		}
 	}
 }
