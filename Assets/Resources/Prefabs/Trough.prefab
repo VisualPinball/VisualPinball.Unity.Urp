@@ -56,6 +56,13 @@ MonoBehaviour:
   PlayfieldExitKickerItem: 
   Ball: {fileID: 0}
   BallCount: 6
+  BallPrefabs:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   SwitchCount: 6
   JamSwitch: 0
   RollTime: 300
