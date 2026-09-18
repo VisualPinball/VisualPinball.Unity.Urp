@@ -25,7 +25,7 @@ namespace VisualPinball.Unity.Urp
 	{
 		public GameObject CreateDefaultBall()
 		{
-			return UnityEngine.Resources.Load<GameObject>("Prefabs/DefaultBall");
+			return UnityEngine.Resources.Load<GameObject>("Prefabs/UrpBall");
 		}
 	}
 }
