@@ -1,6 +1,7 @@
 {
 	"name": "VisualPinball.Engine.Unity.Urp",
 	"references": [
+		"Unity.RenderPipelines.Core.Runtime",
 		"Unity.RenderPipelines.Universal.Runtime",
 		"VisualPinball.Engine",
 		"VisualPinball.Unity",
