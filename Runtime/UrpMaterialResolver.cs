@@ -35,6 +35,12 @@ namespace VisualPinball.Unity.Urp
 	{
 		private static Shader _litShader;
 		private static Shader LitShader => _litShader ? _litShader : (_litShader = Shader.Find("Universal Render Pipeline/Lit"));
+		private static Material _insertHybridTemplate;
+		private static Material _insertCoverTemplate;
+		private static Material InsertHybridTemplate => _insertHybridTemplate ? _insertHybridTemplate
+			: (_insertHybridTemplate = Resources.Load<Material>("Materials/VpeUrpInsertHybridTemplate"));
+		private static Material InsertCoverTemplate => _insertCoverTemplate ? _insertCoverTemplate
+			: (_insertCoverTemplate = Resources.Load<Material>("Materials/VpeUrpInsertCoverTemplate"));
 
 		private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 		private static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
@@ -61,6 +67,8 @@ namespace VisualPinball.Unity.Urp
 			return materialType switch {
 				VpeMaterialTypes.Lit => true,
 				VpeMaterialTypes.Insert => true,
+				VpeMaterialTypes.InsertHybrid => InsertHybridTemplate,
+				VpeMaterialTypes.InsertCover => InsertCoverTemplate,
 				VpeMaterialTypes.Decal => true,
 				VpeMaterialTypes.Metal => true,
 				VpeMaterialTypes.Rubber => true,
@@ -78,6 +86,12 @@ namespace VisualPinball.Unity.Urp
 
 			if (profile.Type == VpeMaterialTypes.Insert) {
 				return BuildInsert(profile, textures, importedMaterial);
+			}
+			if (profile.Type == VpeMaterialTypes.InsertHybrid) {
+				return BuildInsertShader(profile.Name, profile.InsertHybrid, InsertHybridTemplate, textures);
+			}
+			if (profile.Type == VpeMaterialTypes.InsertCover) {
+				return BuildInsertShader(profile.Name, profile.InsertCover, InsertCoverTemplate, textures);
 			}
 			if (profile.Type == VpeMaterialTypes.Decal) {
 				return BuildDecal(profile, textures, importedMaterial);
@@ -168,6 +182,37 @@ namespace VisualPinball.Unity.Urp
 		#endregion
 
 		#region Inserts
+
+		private static Material BuildInsertShader(string name, VpeInsertShaderProfile profile, Material template, IVpeTextureProvider textures)
+		{
+			if (profile == null || !template) { return null; }
+			var material = new Material(template) { name = name, enableInstancing = profile.EnableInstancing,
+				doubleSidedGI = profile.DoubleSidedGi };
+			if (profile.RenderQueue >= 0) { material.renderQueue = profile.RenderQueue; }
+			foreach (var property in profile.Properties ?? System.Array.Empty<VpeInsertShaderProperty>()) {
+				if (property == null || string.IsNullOrEmpty(property.Name) || !material.HasProperty(property.Name)) { continue; }
+				switch (property.Kind) {
+					case "float": material.SetFloat(property.Name, property.FloatValue); break;
+					case "integer": material.SetInteger(property.Name, property.IntValue); break;
+					case "color": material.SetColor(property.Name, property.VectorValue); break;
+					case "vector": material.SetVector(property.Name, property.VectorValue); break;
+					case "texture":
+						var reference = property.Texture;
+						// Surface normals ship as linear RGB. URP unpacks those directly;
+						// the optical normals and response maps remain unmodified data.
+						material.SetTexture(property.Name, string.IsNullOrEmpty(reference?.TextureId) ? null : textures?.Get(reference.TextureId));
+						if (reference != null) {
+							material.SetTextureScale(property.Name, reference.Scale);
+							material.SetTextureOffset(property.Name, reference.Offset);
+						}
+						break;
+				}
+			}
+			if (material.HasProperty("_InsertUrpEmissionScale")) {
+				material.SetFloat("_InsertUrpEmissionScale", UrpPhysicalUnits.EmissiveScale);
+			}
+			return material;
+		}
 
 		// URP has no translucency, diffusion profiles or refraction, so an insert cannot be lit
 		// "through" its plastic the way HDRP does it. The approximation: the transmittance color

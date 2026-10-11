@@ -190,6 +190,12 @@ namespace VisualPinball.Unity.Urp
 
 		public float GetEmissiveIntensity(Material material)
 		{
+			// Hybrid inserts keep authored nits in _EmissiveColor and convert
+			// in the shader. Lamp collection must recognize them without Lit's
+			// _EMISSION keyword so RGB events and previews reach their drive.
+			if (material && material.HasProperty("_InsertLampLevel") && material.HasProperty("_EmissiveColor")) {
+				return material.GetColor("_EmissiveColor").maxColorComponent;
+			}
 			if (!material || !material.HasProperty(EmissionColor) || !material.IsKeywordEnabled("_EMISSION")) {
 				return 0;
 			}
