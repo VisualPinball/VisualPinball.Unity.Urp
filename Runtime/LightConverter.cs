@@ -18,6 +18,7 @@
 // ReSharper disable CheckNamespace
 
 using UnityEngine;
+using UnityEngine.Rendering;
 using VisualPinball.Engine.VPT.Light;
 using Light = UnityEngine.Light;
 
@@ -52,12 +53,16 @@ namespace VisualPinball.Unity.Urp
 		}
 		public void SetRange(Light light, float range)
 		{
-			light.range = range;
+			light.range = light.type is LightType.Point or LightType.Spot ? range * UrpPhysicalUnits.LightRangeMultiplier : range;
 		}
 
 		public void SetIntensity(Light light, float intensityLumen)
 		{
-			//light.intensity = intensityLumen / 1000f;
+			// Match restored physical lights: convert flux to candela first,
+			// then apply the same reference exposure and Lambert conversion.
+			var solidAngle = light.type == LightType.Spot && light.enableSpotReflector
+				? LightUnitUtils.GetSolidAngleFromSpotLight(light.spotAngle) : LightUnitUtils.SphereSolidAngle;
+			light.intensity = LightUnitUtils.LumenToCandela(Mathf.Max(0f, intensityLumen), Mathf.Max(solidAngle, 1e-6f)) * UrpPhysicalUnits.LightScale;
 		}
 
 
