@@ -43,13 +43,13 @@ namespace VisualPinball.Unity.Urp
 			ApplyVolume(settings);
 		}
 
-		/// <summary>The chosen anti-aliasing, or what the camera's window projection allows instead.</summary>
+		/// <summary>The chosen anti-aliasing, or what the camera's cabinet projection allows instead.</summary>
 		internal static void ApplyCameraAntialiasing(Camera camera)
 		{
 			if (camera == null || _antiAliasing < 0 || !camera.TryGetComponent<UniversalAdditionalCameraData>(out var data)) {
 				return;
 			}
-			var aa = WindowProjection.EffectiveAntiAliasing(camera, (VpeAntiAliasing)_antiAliasing);
+			var aa = CabinetProjection.EffectiveAntiAliasing(camera, (VpeAntiAliasing)_antiAliasing);
 			data.antialiasing = aa switch {
 				VpeAntiAliasing.Fxaa => AntialiasingMode.FastApproximateAntialiasing,
 				VpeAntiAliasing.Smaa => AntialiasingMode.SubpixelMorphologicalAntiAliasing,
