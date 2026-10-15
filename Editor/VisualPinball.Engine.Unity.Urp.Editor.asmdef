@@ -5,7 +5,6 @@
 		"VisualPinball.Engine",
 		"VisualPinball.Engine.Editor",
 		"VisualPinball.Unity",
-		"VisualPinball.Unity.Patcher",
 		"VisualPinball.Unity.Editor",
 		"VisualPinball.Engine.Unity.Urp",
 		"Unity.RenderPipelines.Core.Runtime",
