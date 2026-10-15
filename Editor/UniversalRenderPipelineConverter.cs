@@ -29,7 +29,6 @@ namespace VisualPinball.Unity.Urp
 		public string Name => "Universal Render Pipeline";
 
 		public RenderPipelineType Type => RenderPipelineType.Urp;
-		public IMaterialAdapter MaterialAdapter { get; } = new MaterialAdapter();
 		public IPrefabProvider PrefabProvider { get; } = new PrefabProvider();
 	}
 }

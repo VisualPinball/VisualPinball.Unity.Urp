@@ -4,8 +4,7 @@
 		"Unity.RenderPipelines.Core.Runtime",
 		"Unity.RenderPipelines.Universal.Runtime",
 		"VisualPinball.Engine",
-		"VisualPinball.Unity",
-		"VisualPinball.Unity.Patcher"
+		"VisualPinball.Unity"
 	],
 	"includePlatforms": [],
 	"excludePlatforms": [],
