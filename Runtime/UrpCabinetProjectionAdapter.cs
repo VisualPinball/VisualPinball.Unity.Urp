@@ -23,7 +23,7 @@ using VisualPinball.Unity;
 namespace VisualPinball.Unity.Urp
 {
 	/// <summary>
-	/// Lets URP render a camera through a cabinet window projection (an off-centre frustum).
+	/// Lets URP render a camera through a cabinet projection (an off-centre frustum).
 	/// </summary>
 	///
 	/// <remarks>
@@ -31,23 +31,23 @@ namespace VisualPinball.Unity.Urp
 	/// translation, so an off-centre frustum needs no fallback. The camera's aspect stays the one of its
 	/// output; the temporal history is reset when the view jumps.
 	/// </remarks>
-	public sealed class UrpWindowProjectionAdapter : IWindowProjectionAdapter
+	public sealed class UrpCabinetProjectionAdapter : ICabinetProjectionAdapter
 	{
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-		private static void Register() => WindowProjection.Register(new UrpWindowProjectionAdapter());
+		private static void Register() => CabinetProjection.Register(new UrpCabinetProjectionAdapter());
 
 		public void Attach(Camera camera)
 		{
 			UrpGraphicsApplier.ApplyCameraAntialiasing(camera);
 		}
 
-		public void ApplyMetadata(Camera camera, in WindowProjectionResult projection)
+		public void ApplyMetadata(Camera camera, in CabinetProjectionResult projection)
 		{
 			camera.ResetAspect();
 			camera.fieldOfView = projection.EnclosingFieldOfView;
 		}
 
-		public void ProjectionChanged(Camera camera, in WindowProjectionResult projection, bool discontinuous)
+		public void ProjectionChanged(Camera camera, in CabinetProjectionResult projection, bool discontinuous)
 		{
 			if (discontinuous) {
 				ResetHistory(camera);
