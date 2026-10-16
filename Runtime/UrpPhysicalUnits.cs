@@ -22,36 +22,47 @@ namespace VisualPinball.Unity.Urp
 {
 	// .vpe tables are authored under HDRP in physical units: emissives in nits, punctual lights
 	// in candela (Light.intensity holds the candela value), directionals in lux. HDRP tone-maps
-	// those through exposure (signal = luminance / (1.2 * 2^EV100)); URP has neither physical
+	// those through exposure (signal = luminance / 2^EV100); URP has neither physical
 	// units nor an exposure system, so this is the single place where physical values are mapped
 	// into URP's unitless lighting.
 	public static class UrpPhysicalUnits
 	{
-		// Reference exposure baked into the conversion. Calibrated 2026-07-02 by A/B region-stats
-		// against the HDRP player under the neutral wooden_studio_17_1k HDRI (same camera pose,
-		// only table lights on): EV 4.5 brings GI-lamp pools and faux-bulb cores in line with
-		// HDRP's histogram exposure. Tune this one value if overall URP lamp/emissive brightness
-		// drifts from the HDRP player.
-		public const float ReferenceEv100 = 5f;
+		// The exposure baked into the conversion: the one the HDRP player renders with. Its game camera
+		// exposes physically (Exposure "Use Physical Camera"), at f/5.6, 1/50 s and ISO 1100, so
+		// EV100 = log2(N² / t · 100 / ISO) ≈ 7.16. Keep this in sync with that camera, or the URP player
+		// drifts brighter or darker than the HDRP one.
+		public static readonly float ReferenceEv100 = Ev100(5.6f, 1f / 50f, 1100f);
 
-		// Extra stops applied to emissive surfaces on top of ReferenceEv100. A/B stats showed
-		// faux-bulb cores/halos still ~1 EV hotter than HDRP when lights already matched —
-		// URP's bloom picks emissive HDR values up more aggressively than HDRP's.
-		public const float EmissiveExtraEv = 1f;
+		// Extra stops applied to emissive surfaces on top of ReferenceEv100, for differences in how
+		// the two pipelines' bloom picks up emissive HDR values.
+		public const float EmissiveExtraEv = 0f;
+
+		// Measured, not derived: with the exposure above, the URP player still rendered the same table about
+		// 0.68 EV darker than the HDRP player (A/B of the dark and the lamps-on table, 2026-10-16). Recalibrate
+		// it with the VPE > Look Compare tools in both players when lights, materials or post-processing change.
+		public const float CalibrationEv = 0.68f;
+
+		// The multiplier HDRP's exposure applies to a luminance (nits), with the calibration. The HDRP player's
+		// pipeline uses a perfect lens (Lens Attenuation 0.78), which leaves out the usual 1.2 lens factor.
+		public static readonly float ExposureScale = Mathf.Pow(2f, CalibrationEv - ReferenceEv100);
 
 		// nits (emissive luminance) → URP emission value.
-		public static readonly float EmissiveScale = 1f / (1.2f * Mathf.Pow(2f, ReferenceEv100 + EmissiveExtraEv));
+		public static readonly float EmissiveScale = ExposureScale / Mathf.Pow(2f, EmissiveExtraEv);
 
 		// candela / lux → URP light intensity. URP's Lambert term carries no 1/π (the legacy
 		// Unity convention bakes it into the light), so physical light intensities additionally
 		// divide by π. Derived from ReferenceEv100 alone — EmissiveExtraEv does not apply here.
-		public static readonly float LightScale = 1f / (1.2f * Mathf.Pow(2f, ReferenceEv100) * Mathf.PI);
+		public static readonly float LightScale = ExposureScale / Mathf.PI;
 
 		// HDRP spreads each lamp's light through SSGI (screen-space bounce); URP has no GI, so
 		// table lamps only produce their direct pools. Widening the authored ranges makes the
 		// overlapping pools stand in for the first bounce — and unlike a static ambient lift it
 		// follows the lamp state (GI string off → playfield goes dark, as in HDRP).
 		public const float LightRangeMultiplier = 3.5f;
+
+		/// <summary>The exposure value at ISO 100 of a camera with the given aperture (f-number), shutter time (s) and ISO.</summary>
+		public static float Ev100(float aperture, float shutterSeconds, float iso)
+			=> Mathf.Log(aperture * aperture / shutterSeconds * 100f / iso, 2f);
 
 		// Registered with VpeLightUnitAdjuster at bootstrap; runs after each restored light
 		// profile has been applied with its authored (HDRP-physical) values.
