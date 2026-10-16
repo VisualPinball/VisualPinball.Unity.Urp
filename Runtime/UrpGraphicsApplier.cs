@@ -46,16 +46,36 @@ namespace VisualPinball.Unity.Urp
 		/// <summary>The chosen anti-aliasing, or what the camera's cabinet projection allows instead.</summary>
 		internal static void ApplyCameraAntialiasing(Camera camera)
 		{
-			if (camera == null || _antiAliasing < 0 || !camera.TryGetComponent<UniversalAdditionalCameraData>(out var data)) {
+			if (camera == null || !camera.TryGetComponent<UniversalAdditionalCameraData>(out var data)) {
 				return;
 			}
-			var aa = CabinetProjection.EffectiveAntiAliasing(camera, (VpeAntiAliasing)_antiAliasing);
-			data.antialiasing = aa switch {
-				VpeAntiAliasing.Fxaa => AntialiasingMode.FastApproximateAntialiasing,
-				VpeAntiAliasing.Smaa => AntialiasingMode.SubpixelMorphologicalAntiAliasing,
-				VpeAntiAliasing.Taa => AntialiasingMode.TemporalAntiAliasing,
-				_ => AntialiasingMode.None,
-			};
+			if (_antiAliasing >= 0) {
+				var aa = CabinetProjection.EffectiveAntiAliasing(camera, (VpeAntiAliasing)_antiAliasing);
+				data.antialiasing = aa switch {
+					VpeAntiAliasing.Fxaa => AntialiasingMode.FastApproximateAntialiasing,
+					VpeAntiAliasing.Smaa => AntialiasingMode.SubpixelMorphologicalAntiAliasing,
+					VpeAntiAliasing.Taa => AntialiasingMode.TemporalAntiAliasing,
+					_ => AntialiasingMode.None,
+				};
+			}
+			if (data.antialiasing == AntialiasingMode.TemporalAntiAliasing) {
+				ApplyTemporalAntialiasing(data);
+			}
+		}
+
+		// With the whole table in view, wire ramps, rails and plastic edges are thinner than a pixel, and
+		// URP's TAA defaults never settle on them: the jittered samples keep landing on and off, and its
+		// history clamp rejects what it accumulated (HDRP's TAA has an anti-flicker term URP's lacks).
+		// Measured on a still table at 432x768, against the defaults (High, 0.9 history, full jitter, 0.9
+		// clamp), these cut the flickering pixels by about 3.5x and the strongly flickering ones by 7x,
+		// with a slightly sharper result. More history (0.97) flickers even less, but risks trailing a fast ball.
+		private static void ApplyTemporalAntialiasing(UniversalAdditionalCameraData data)
+		{
+			ref var taa = ref data.taaSettings;
+			taa.quality = TemporalAAQuality.VeryHigh;
+			taa.baseBlendFactor = 0.95f;
+			taa.jitterScale = 0.5f;
+			taa.varianceClampScale = 2f;
 		}
 
 		private static void ApplyVolume(VpeGraphicsSettings settings)
