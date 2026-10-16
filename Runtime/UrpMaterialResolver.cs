@@ -61,6 +61,7 @@ namespace VisualPinball.Unity.Urp
 		private static readonly int DstBlendId = Shader.PropertyToID("_DstBlend");
 		private static readonly int ZWriteId = Shader.PropertyToID("_ZWrite");
 		private static readonly int CullId = Shader.PropertyToID("_Cull");
+		private static readonly int PreserveSpecularId = Shader.PropertyToID("_BlendModePreserveSpecular");
 
 		public bool Supports(string materialType)
 		{
@@ -260,8 +261,10 @@ namespace VisualPinball.Unity.Urp
 			// for that to look right, so force plain alpha blending — with the boosted opacity
 			// above it reads much closer to the HDRP lens anyway.
 			material.SetFloat(BlendId, 0f);
+			material.SetFloat(PreserveSpecularId, 0f);
 			material.SetFloat(SrcBlendId, (float)BlendMode.SrcAlpha);
 			material.SetFloat(DstBlendId, (float)BlendMode.OneMinusSrcAlpha);
+			material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
 
 			// Emission baseline: chroma from the tint, magnitude = full-lamp glow. LightComponent
 			// reads this baseline at Awake, zeroes it, and scales it with the lamp value.
@@ -349,6 +352,9 @@ namespace VisualPinball.Unity.Urp
 			}
 
 			ApplySurface(material, lit);
+			if (lit.SurfaceType == VpeSurfaceTypes.Transparent && lit.RefractionModel != VpeRefractionModels.None) {
+				ApplyRefractionFallback(material, lit);
+			}
 
 			material.SetFloat(CullId, lit.DoubleSided ? (float)CullMode.Off : (float)CullMode.Back);
 			material.doubleSidedGI = lit.DoubleSidedGi;
@@ -401,7 +407,7 @@ namespace VisualPinball.Unity.Urp
 					material.SetFloat(ZWriteId, 0f);
 					material.SetOverrideTag("RenderType", "Transparent");
 					material.renderQueue = (int)RenderQueue.Transparent;
-					ApplyBlend(material, lit.BlendMode);
+					ApplyBlend(material, lit.BlendMode, lit.Hdrp?.BlendModePreserveSpecularLighting ?? true);
 					break;
 
 				case VpeSurfaceTypes.AlphaTest:
@@ -431,7 +437,25 @@ namespace VisualPinball.Unity.Urp
 			}
 		}
 
-		private static void ApplyBlend(Material material, string blendMode)
+		// URP has no refraction. HDRP's refracting plastics (bumper caps, plastic posts) get their color almost
+		// entirely from tinting what is seen through them, with a base alpha close to zero: alpha-blended as
+		// authored, they vanish. Here, the light the plastic absorbs becomes coverage instead: the less it
+		// transmits, the more opaque it gets, colored like the light it lets through.
+		private static void ApplyRefractionFallback(Material material, VpeLitProfile lit)
+		{
+			var transmittance = (Color)lit.TransmittanceColor;
+			var maxTransmittance = transmittance.maxColorComponent;
+			if (maxTransmittance <= 0.0001f) {
+				return;
+			}
+			var absorbed = 1f - (transmittance.r + transmittance.g + transmittance.b) / 3f;
+			var baseColor = (Color)lit.BaseColor.Color;
+			var hue = transmittance / maxTransmittance;
+			material.SetColor(BaseColorId, new Color(baseColor.r * hue.r, baseColor.g * hue.g, baseColor.b * hue.b,
+				Mathf.Max(baseColor.a, Mathf.Clamp01(absorbed))));
+		}
+
+		private static void ApplyBlend(Material material, string blendMode, bool preserveSpecular)
 		{
 			switch (blendMode) {
 				case VpeBlendModes.Additive:
@@ -445,9 +469,15 @@ namespace VisualPinball.Unity.Urp
 					material.SetFloat(DstBlendId, (float)BlendMode.OneMinusSrcAlpha);
 					break;
 				default: // Alpha
+					// With HDRP's "preserve specular lighting" (its default), alpha fades the diffuse part only, so
+					// clear plastics keep their reflections. URP/Lit does the same.
 					material.SetFloat(BlendId, 0f);
-					material.SetFloat(SrcBlendId, (float)BlendMode.SrcAlpha);
+					material.SetFloat(PreserveSpecularId, preserveSpecular ? 1f : 0f);
+					material.SetFloat(SrcBlendId, preserveSpecular ? (float)BlendMode.One : (float)BlendMode.SrcAlpha);
 					material.SetFloat(DstBlendId, (float)BlendMode.OneMinusSrcAlpha);
+					if (preserveSpecular) {
+						material.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+					}
 					break;
 			}
 		}
