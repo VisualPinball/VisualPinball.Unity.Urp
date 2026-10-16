@@ -139,17 +139,13 @@ namespace VisualPinball.Unity.Urp
 			material.SetFloat(MetallicId, decal.Metallic);
 			material.SetFloat(SmoothnessId, decal.Smoothness);
 
-			// Same HDRP mask-map reuse as BuildLit: R=metallic/A=smoothness feed _MetallicGlossMap,
-			// G=AO feeds _OcclusionMap.
+			// Same HDRP mask map as BuildLit. With a mask, HDRP's decal ignores the metallic/smoothness/AO
+			// scalars and remaps the channels instead; VPE decals carry no remaps, so they're identity.
 			if (decal.AffectMask && decal.MaskMap != null && !string.IsNullOrWhiteSpace(decal.MaskMap.TextureId)
 				&& decal.MaskPacking == VpeMaskPackings.HdrpMaskMap) {
 				var mask = textures?.Get(decal.MaskMap.TextureId);
 				if (mask) {
-					material.SetTexture(MetallicGlossMapId, mask);
-					material.EnableKeyword("_METALLICSPECGLOSSMAP");
-					material.SetTexture(OcclusionMapId, mask);
-					material.EnableKeyword("_OCCLUSIONMAP");
-					material.SetFloat(OcclusionStrengthId, decal.AmbientOcclusion);
+					ApplyMaskMap(material, mask, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), textures);
 				}
 			}
 
@@ -289,7 +285,9 @@ namespace VisualPinball.Unity.Urp
 				return null;
 			}
 
-			var material = new Material(LitShader) { name = name, enableInstancing = true };
+			var projection = UrpProjectedMapping.Of(lit);
+			var shader = projection != UrpProjectedMapping.Mode.None && UrpProjectedMapping.Shader ? UrpProjectedMapping.Shader : LitShader;
+			var material = new Material(shader) { name = name, enableInstancing = true };
 
 			// --- base color + map ---
 			material.SetColor(BaseColorId, (Color)lit.BaseColor.Color);
@@ -298,28 +296,27 @@ namespace VisualPinball.Unity.Urp
 				material.SetTexture(BaseMapId, baseTex);
 				ApplyScaleOffset(material, BaseMapId, lit.BaseColor.Texture);
 			}
+			if (shader != LitShader) {
+				// Every map follows the base map's tiling, also when there is no base map.
+				UrpProjectedMapping.Apply(material, projection, lit);
+			}
 
 			// --- metallic / smoothness ---
-			material.SetFloat(MetallicId, lit.Metallic);
+			// HDRP computes the diffuse color of subsurface-scattering and translucent materials without
+			// metallic (Lit.hlsl, ConvertSurfaceDataToBSDFData). URP can't separate the two: a metallic
+			// translucent plastic would lose its diffuse color and, when transparent, turn nearly opaque
+			// through URP's reflectivity-raised alpha. Treat those materials as dielectrics.
+			var dielectric = IsDiffuseDielectric(lit);
+			material.SetFloat(MetallicId, dielectric ? 0f : lit.Metallic);
 			material.SetFloat(SmoothnessId, lit.Smoothness);
 
 			// --- mask map ---
-			// HDRP MaskMap packs R=metallic, G=AO, B=detail, A=smoothness. URP/Lit reads metallic
-			// from R and smoothness from A of _MetallicGlossMap, and AO from G of _OcclusionMap, so
-			// the very same texture feeds both slots.
 			if (lit.MaskMap != null && !string.IsNullOrWhiteSpace(lit.MaskMap.TextureId)
 				&& lit.MaskPacking == VpeMaskPackings.HdrpMaskMap) {
 				var mask = textures?.Get(lit.MaskMap.TextureId);
 				if (mask) {
-					material.SetTexture(MetallicGlossMapId, mask);
-					material.EnableKeyword("_METALLICSPECGLOSSMAP");
-					material.SetTexture(OcclusionMapId, mask);
-					material.EnableKeyword("_OCCLUSIONMAP");
-					material.SetFloat(OcclusionStrengthId, lit.OcclusionStrength);
-					// URP computes smoothness = mask.a * _Smoothness; HDRP uses lerp(remapMin,remapMax,mask.a)
-					// and ignores the scalar when a mask is present. Use the remap max so mask.a drives
-					// smoothness fully instead of being scaled down by the (mask-irrelevant) scalar.
-					material.SetFloat(SmoothnessId, lit.SmoothnessRemap.y);
+					var metallicRemap = dielectric ? Vector2.zero : lit.MetallicRemap;
+					ApplyMaskMap(material, mask, metallicRemap, lit.SmoothnessRemap, lit.AoRemap, textures);
 				}
 			}
 
@@ -357,6 +354,40 @@ namespace VisualPinball.Unity.Urp
 			material.doubleSidedGI = lit.DoubleSidedGi;
 
 			return material;
+		}
+
+		// HDRP material types (_MaterialID): 0 = subsurface scattering, 5 = translucent. Without an explicit
+		// id, HdrpMaterialResolver picks translucent for transparent profiles with transmission.
+		private static bool IsDiffuseDielectric(VpeLitProfile lit)
+		{
+			var materialId = lit.Hdrp?.MaterialId ?? -1;
+			if (materialId < 0) {
+				materialId = lit.HasTransmission && lit.SurfaceType == VpeSurfaceTypes.Transparent ? 5 : 1;
+			}
+			return materialId == 0 || materialId == 5;
+		}
+
+		// HDRP MaskMap packs R=metallic, G=AO, B=detail, A=smoothness, and with a mask present HDRP ignores
+		// the metallic/smoothness scalars: each channel is lerp(remapMin, remapMax, channel). URP/Lit reads
+		// metallic from R and smoothness from A of _MetallicGlossMap, and AO from G of _OcclusionMap, so one
+		// texture feeds both slots; UrpMaskRemap bakes the remaps URP can't express into that texture.
+		private static void ApplyMaskMap(Material material, Texture2D mask, Vector2 metallicRemap, Vector2 smoothnessRemap,
+			Vector2 aoRemap, IVpeTextureProvider textures)
+		{
+			var remapped = UrpMaskRemap.Resolve(mask, metallicRemap, smoothnessRemap, aoRemap, textures);
+			material.SetFloat(MetallicId, remapped.Metallic);
+			material.SetFloat(SmoothnessId, remapped.Smoothness);
+			if (!remapped.Mask) {
+				// Every channel constant: the scalars say it all.
+				return;
+			}
+			material.SetTexture(MetallicGlossMapId, remapped.Mask);
+			material.EnableKeyword("_METALLICSPECGLOSSMAP");
+			if (remapped.OcclusionStrength > 0f) {
+				material.SetTexture(OcclusionMapId, remapped.Mask);
+				material.EnableKeyword("_OCCLUSIONMAP");
+				material.SetFloat(OcclusionStrengthId, remapped.OcclusionStrength);
+			}
 		}
 
 		private static void ApplySurface(Material material, VpeLitProfile lit)
