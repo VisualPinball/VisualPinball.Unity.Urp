@@ -8,9 +8,12 @@
 		"VisualPinball.Unity.Editor",
 		"VisualPinball.Engine.Unity.Urp",
 		"Unity.RenderPipelines.Core.Runtime",
-		"Unity.RenderPipelines.Universal.Runtime"
+		"Unity.RenderPipelines.Universal.Runtime",
+		"Unity.RenderPipelines.Core.Editor"
 	],
-	"includePlatforms": [ "Editor" ],
+	"includePlatforms": [
+		"Editor"
+	],
 	"excludePlatforms": [],
 	"allowUnsafeCode": true,
 	"overrideReferences": false,
