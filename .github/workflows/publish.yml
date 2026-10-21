@@ -8,10 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
       - name: Publish
         run: |
           echo "//registry.visualpinball.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-          npm publish
+          npm publish --tag latest
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
