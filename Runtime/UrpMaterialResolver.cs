@@ -208,6 +208,15 @@ namespace VisualPinball.Unity.Urp
 			if (material.HasProperty("_InsertUrpEmissionScale")) {
 				material.SetFloat("_InsertUrpEmissionScale", UrpPhysicalUnits.EmissiveScale);
 			}
+			// The insert's opt-in Traced mode travels as its toggle's value; nothing
+			// at runtime turns that back into the keyword.
+			if (material.HasProperty("_INSERT_TRACED")) {
+				if (material.GetFloat("_INSERT_TRACED") > 0.5f) {
+					material.EnableKeyword("_INSERT_TRACED");
+				} else {
+					material.DisableKeyword("_INSERT_TRACED");
+				}
+			}
 			return material;
 		}
 
