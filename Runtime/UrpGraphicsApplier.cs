@@ -37,6 +37,7 @@ namespace VisualPinball.Unity.Urp
 			_antiAliasing = -1;
 			VpeGraphics.Register(new UrpGraphicsApplier());
 			VpeGraphics.UpscalerSupport = IsUpscalerSupported;
+			VpeGraphics.MotionBlurSupported = true;
 			VpeGraphics.RenderScaleSource = () => GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset p ? p.renderScale : 1f;
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.playModeStateChanged -= OnEditorPlayModeChanged;
@@ -254,6 +255,27 @@ namespace VisualPinball.Unity.Urp
 			if (profile != null && profile.TryGet<Bloom>(out var bloom)) {
 				bloom.active = settings.Bloom;
 			}
+			if (profile == null) {
+				return;
+			}
+			// The camera stands still while the balls move, so the blur has to follow the objects' own motion.
+			var level = (VpeMotionBlur)settings.MotionBlur;
+			if (!profile.TryGet<MotionBlur>(out var motionBlur)) {
+				if (level == VpeMotionBlur.Off) {
+					return;
+				}
+				motionBlur = profile.Add<MotionBlur>();
+			}
+			motionBlur.active = level != VpeMotionBlur.Off;
+			motionBlur.mode.Override(MotionBlurMode.CameraAndObjects);
+			motionBlur.quality.Override(MotionBlurQuality.Medium);
+			// the share of the frame time the shutter stays open; High streaks a fast ball by less than half its width
+			motionBlur.intensity.Override(level switch {
+				VpeMotionBlur.Low => 0.15f,
+				VpeMotionBlur.Medium => 0.3f,
+				VpeMotionBlur.High => 0.45f,
+				_ => 0f,
+			});
 		}
 	}
 }
