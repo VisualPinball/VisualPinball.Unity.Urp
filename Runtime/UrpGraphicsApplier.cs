@@ -25,7 +25,8 @@ namespace VisualPinball.Unity.Urp
 {
 	/// <summary>
 	/// Applies the host app's <see cref="VpeGraphicsSettings"/> to URP at runtime: the game camera's
-	/// anti-aliasing, global Volume bloom and the active pipeline's SSR/SSAO renderer features.
+	/// anti-aliasing, global Volume bloom, the shadows of the lights around the table and the active
+	/// pipeline's SSR/SSAO renderer features.
 	/// </summary>
 	public sealed class UrpGraphicsApplier : IVpeGraphicsApplier
 	{
@@ -33,15 +34,22 @@ namespace VisualPinball.Unity.Urp
 		private static void Register()
 		{
 			RestoreUpscalerState();
+			RestoreShadowState();
+			Originals.Clear();
 			_upscaler = VpeUpscaler.Off;
 			_antiAliasing = -1;
 			VpeGraphics.Register(new UrpGraphicsApplier());
 			VpeGraphics.UpscalerSupport = IsUpscalerSupported;
 			VpeGraphics.MotionBlurSupported = true;
+			VpeGraphics.EffectSupport = IsEffectSupported;
+			VpeGraphics.EffectiveSettingsSource = DescribeEffective;
 			VpeGraphics.RenderScaleSource = () => GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset p ? p.renderScale : 1f;
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.playModeStateChanged -= OnEditorPlayModeChanged;
 			UnityEditor.EditorApplication.playModeStateChanged += OnEditorPlayModeChanged;
+			// scripts recompiled while playing: what the assets were set up with is forgotten with this class
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload -= RestoreAssets;
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += RestoreAssets;
 #endif
 		}
 
@@ -51,13 +59,78 @@ namespace VisualPinball.Unity.Urp
 		private static void OnEditorPlayModeChanged(UnityEditor.PlayModeStateChange state)
 		{
 			if (state != UnityEditor.PlayModeStateChange.ExitingPlayMode) return;
+			RestoreAssets();
+		}
+
+		// The pipeline's assets as they were before play changed them: they are shared with the project.
+		private static void RestoreAssets()
+		{
 			foreach (var item in OriginalFeatureStates) {
 				if (item.Key != null) item.Key.SetActive(item.Value);
 			}
 			OriginalFeatureStates.Clear();
 			RestoreUpscalerState();
+			RestoreShadowState();
 		}
 #endif
+
+		// What URP renders the camera with: the volume stack as it resolved it, the renderer features that are
+		// active and the pipeline asset's shadow setup.
+		private static string DescribeEffective(Camera camera)
+		{
+			var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+			var stack = VolumeManager.instance.stack;
+			var bloom = stack?.GetComponent<Bloom>();
+			var blur = stack?.GetComponent<MotionBlur>();
+			var features = new System.Collections.Generic.List<string>();
+			if (pipeline != null) {
+				foreach (var renderer in pipeline.rendererDataList) {
+					if (renderer == null) continue;
+					foreach (var feature in renderer.rendererFeatures) {
+						if (feature != null && feature.isActive) features.Add(feature.GetType().Name);
+					}
+				}
+			}
+			var shadowLights = 0;
+			foreach (var light in Object.FindObjectsByType<Light>(FindObjectsInactive.Exclude)) {
+				if (light.enabled && light.shadows != LightShadows.None) shadowLights++;
+			}
+			return string.Format(System.Globalization.CultureInfo.InvariantCulture,
+				"asset {0}; aa {1}; bloom {2:0.###}; features {3}; shadows {4} light(s), {5} cascade(s), main map {6}; motion blur {7:0.##}; scale {8:0.###}",
+				pipeline != null ? pipeline.name : "none",
+				camera.TryGetComponent<UniversalAdditionalCameraData>(out var data) ? data.antialiasing.ToString() : "?",
+				bloom != null && bloom.active ? bloom.intensity.value : 0f,
+				features.Count > 0 ? string.Join("+", features) : "none",
+				shadowLights, pipeline != null ? pipeline.shadowCascadeCount : 0, pipeline != null ? pipeline.mainLightShadowmapResolution : 0,
+				blur != null && blur.active ? blur.intensity.value : 0f,
+				pipeline != null ? pipeline.renderScale : 1f);
+		}
+
+		// SSR and SSAO are renderer features of the active pipeline asset's renderers, which a tier can come
+		// without; URP has no screen-space global illumination.
+		private static bool IsEffectSupported(VpeEffect effect) => effect switch {
+			VpeEffect.ScreenSpaceReflections => HasRendererFeature("UniversalScreenSpaceReflection.ScreenSpaceReflection"),
+			VpeEffect.AmbientOcclusion => HasRendererFeature("UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion"),
+			_ => false,
+		};
+
+		private static bool HasRendererFeature(string typeName)
+		{
+			if (GraphicsSettings.currentRenderPipeline is not UniversalRenderPipelineAsset pipeline) {
+				return false;
+			}
+			foreach (var renderer in pipeline.rendererDataList) {
+				if (renderer == null) {
+					continue;
+				}
+				foreach (var feature in renderer.rendererFeatures) {
+					if (feature != null && feature.GetType().FullName == typeName) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 
 		// the user's choice (-1 = none yet, the camera keeps its own)
 		private static int _antiAliasing = -1;
@@ -167,6 +240,161 @@ namespace VisualPinball.Unity.Urp
 			ApplyCameraAntialiasing(Camera.main);
 			ApplyVolume(settings);
 			ApplyRendererFeatures(settings);
+			_shadows = (VpeShadows)Mathf.Clamp(settings.Shadows, 0, 2);
+			ApplyShadows();
+		}
+
+		// The lights around the table (the room's and the studio setups') are the only ones that cast shadows:
+		// the lamps on the table never do. Off takes their shadows away; Low gives them hard edges, and the
+		// main light one small cascade. What the lights and the pipeline asset were set up with is kept, for
+		// High to give back.
+		private const int LowShadowResolution = 1024;
+		private static VpeShadows _shadows = VpeShadows.High;
+		private static readonly System.Collections.Generic.Dictionary<Light, LightShadows> ShadowLights = new();
+		private static readonly System.Collections.Generic.Dictionary<UniversalRenderPipelineAsset, (int Cascades, int Resolution)> ShadowPipelines = new();
+
+		private static void RestoreShadowState()
+		{
+			foreach (var item in ShadowLights) {
+				if (item.Key != null) item.Key.shadows = item.Value;
+			}
+			ShadowLights.Clear();
+			foreach (var item in ShadowPipelines) {
+				if (item.Key == null) continue;
+				item.Key.shadowCascadeCount = item.Value.Cascades;
+				item.Key.mainLightShadowmapResolution = item.Value.Resolution;
+			}
+			ShadowPipelines.Clear();
+			_shadows = VpeShadows.High;
+		}
+
+		private static void ApplyShadows()
+		{
+			if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset pipeline) {
+				if (_shadows == VpeShadows.Low) {
+					if (!ShadowPipelines.ContainsKey(pipeline)) {
+						ShadowPipelines[pipeline] = (pipeline.shadowCascadeCount, pipeline.mainLightShadowmapResolution);
+					}
+					pipeline.shadowCascadeCount = 1;
+					pipeline.mainLightShadowmapResolution = Mathf.Min(LowShadowResolution, ShadowPipelines[pipeline].Resolution);
+				} else if (ShadowPipelines.Remove(pipeline, out var original)) {
+					pipeline.shadowCascadeCount = original.Cascades;
+					pipeline.mainLightShadowmapResolution = original.Resolution;
+				}
+			}
+			var gone = new System.Collections.Generic.List<Light>();
+			foreach (var light in ShadowLights.Keys) {
+				if (light == null) gone.Add(light);
+			}
+			foreach (var light in gone) {
+				ShadowLights.Remove(light);
+			}
+			foreach (var light in Object.FindObjectsByType<Light>(FindObjectsInactive.Include)) {
+				ApplyLightShadows(light);
+			}
+		}
+
+		/// <summary>
+		/// Gives a light the shadows the graphics settings allow. For lights set up after the settings were
+		/// applied, such as a studio setup's.
+		/// </summary>
+		internal static void ApplyLightShadows(Light light)
+		{
+			if (light == null) {
+				return;
+			}
+			if (!ShadowLights.TryGetValue(light, out var original)) {
+				if (light.shadows == LightShadows.None || _shadows == VpeShadows.High) {
+					return; // casts none, or keeps what it has
+				}
+				original = light.shadows;
+				ShadowLights[light] = original;
+			}
+			switch (_shadows) {
+				case VpeShadows.Off:
+					light.shadows = LightShadows.None;
+					break;
+				case VpeShadows.Low:
+					light.shadows = LightShadows.Hard;
+					break;
+				default:
+					light.shadows = original;
+					ShadowLights.Remove(light);
+					break;
+			}
+		}
+
+		/// <summary>
+		/// A light was set up anew with these shadows: what the settings kept of its earlier ones no longer
+		/// applies.
+		/// </summary>
+		internal static void LightConfigured(Light light)
+		{
+			if (light != null) {
+				ShadowLights.Remove(light);
+			}
+			ApplyLightShadows(light);
+		}
+
+		// What a volume parameter held before a setting overrode it, with the component it belongs to: a
+		// setting that's turned up again gives the volume's own value back.
+		private static readonly System.Collections.Generic.Dictionary<VolumeParameter, (VolumeComponent Owner, bool Overridden, object Value)> Originals = new(new ByReference());
+
+		// A volume parameter equals another one with the same value, and its hash changes with its value: as a
+		// key it has to be the object itself.
+		private sealed class ByReference : System.Collections.Generic.IEqualityComparer<VolumeParameter>
+		{
+			public bool Equals(VolumeParameter a, VolumeParameter b) => ReferenceEquals(a, b);
+			public int GetHashCode(VolumeParameter parameter) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(parameter);
+		}
+
+		private static void Force<T>(VolumeComponent owner, VolumeParameter<T> parameter, T value)
+		{
+			if (!Originals.ContainsKey(parameter)) {
+				Originals[parameter] = (owner, parameter.overrideState, parameter.value);
+			}
+			parameter.Override(value);
+		}
+
+		private static void Release<T>(VolumeParameter<T> parameter)
+		{
+			if (Originals.Remove(parameter, out var original)) {
+				parameter.value = (T)original.Value;
+				parameter.overrideState = original.Overridden;
+			}
+		}
+
+		private static void ForgetOrphanedOriginals()
+		{
+			var orphaned = new System.Collections.Generic.List<VolumeParameter>();
+			foreach (var entry in Originals) {
+				if (entry.Value.Owner == null) orphaned.Add(entry.Key);
+			}
+			foreach (var parameter in orphaned) {
+				Originals.Remove(parameter);
+			}
+		}
+
+		// The SSR feature is an optional third-party assembly, so its volume component is found by name. Its
+		// rays take up to 256 steps as it comes; Medium and Low cut them short, which mostly shortens long
+		// reflections.
+		private const string ReflectionVolumeType = "UniversalScreenSpaceReflection.ScreenSpaceReflectionVolume";
+
+		private static void ApplyReflectionQuality(VolumeProfile profile, VpeReflectionQuality quality)
+		{
+			foreach (var component in profile.components) {
+				if (component == null || component.GetType().FullName != ReflectionVolumeType) {
+					continue;
+				}
+				if (component.GetType().GetField("rayMaxIterations")?.GetValue(component) is not VolumeParameter<int> iterations) {
+					continue;
+				}
+				if (quality == VpeReflectionQuality.High) {
+					Release(iterations);
+				} else {
+					Force(component, iterations, quality == VpeReflectionQuality.Medium ? 128 : 64);
+				}
+			}
 		}
 
 		private static void ApplyRendererFeatures(VpeGraphicsSettings settings)
@@ -251,13 +479,25 @@ namespace VisualPinball.Unity.Urp
 					best = volume;
 				}
 			}
+			ForgetOrphanedOriginals();
 			var profile = best != null ? best.profile : null;
-			if (profile != null && profile.TryGet<Bloom>(out var bloom)) {
-				bloom.active = settings.Bloom;
-			}
 			if (profile == null) {
 				return;
 			}
+			// The pipeline asset's own volume profile is the stack's default, and an inactive component hands
+			// over to it: bloom that's off needs a component that stays active and says so.
+			if (!profile.TryGet<Bloom>(out var bloom) && !settings.Bloom) {
+				bloom = profile.Add<Bloom>();
+			}
+			if (bloom != null) {
+				bloom.active = true;
+				if (settings.Bloom) {
+					Release(bloom.intensity);
+				} else {
+					Force(bloom, bloom.intensity, 0f);
+				}
+			}
+			ApplyReflectionQuality(profile, (VpeReflectionQuality)Mathf.Clamp(settings.ReflectionQuality, 0, 2));
 			// The camera stands still while the balls move, so the blur has to follow the objects' own motion.
 			var level = (VpeMotionBlur)settings.MotionBlur;
 			if (!profile.TryGet<MotionBlur>(out var motionBlur)) {

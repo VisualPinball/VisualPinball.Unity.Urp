@@ -139,6 +139,8 @@ namespace VisualPinball.Unity.Urp
 				light.innerSpotAngle = spec.SpotAngle * spec.InnerSpotPercent / 100f;
 				light.range = spec.Range;
 			}
+			// the graphics settings may allow less
+			UrpGraphicsApplier.LightConfigured(light);
 		}
 
 		// Scales a copy of the skybox material, so the project's own stays as it is.
