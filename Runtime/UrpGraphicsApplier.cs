@@ -74,8 +74,8 @@ namespace VisualPinball.Unity.Urp
 		}
 #endif
 
-		// What URP renders the camera with: the volume stack as it resolved it, the renderer features that are
-		// active and the pipeline asset's shadow setup.
+		// What URP renders the camera with: the volume stack as it resolved it, the renderers' paths, the
+		// renderer features that are active with what decides their cost, and the pipeline asset's shadow setup.
 		private static string DescribeEffective(Camera camera)
 		{
 			var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
@@ -83,11 +83,13 @@ namespace VisualPinball.Unity.Urp
 			var bloom = stack?.GetComponent<Bloom>();
 			var blur = stack?.GetComponent<MotionBlur>();
 			var features = new System.Collections.Generic.List<string>();
+			var paths = new System.Collections.Generic.List<string>();
 			if (pipeline != null) {
 				foreach (var renderer in pipeline.rendererDataList) {
 					if (renderer == null) continue;
+					if (renderer is UniversalRendererData universal) paths.Add(universal.renderingMode.ToString());
 					foreach (var feature in renderer.rendererFeatures) {
-						if (feature != null && feature.isActive) features.Add(feature.GetType().Name);
+						if (feature != null && feature.isActive) features.Add(feature.GetType().Name + DescribeFeature(feature, stack));
 					}
 				}
 			}
@@ -96,14 +98,43 @@ namespace VisualPinball.Unity.Urp
 				if (light.enabled && light.shadows != LightShadows.None) shadowLights++;
 			}
 			return string.Format(System.Globalization.CultureInfo.InvariantCulture,
-				"asset {0}; aa {1}; bloom {2:0.###}; features {3}; shadows {4} light(s), {5} cascade(s), main map {6}; motion blur {7:0.##}; scale {8:0.###}",
+				"asset {0}; path {9}; aa {1}; bloom {2:0.###}; features {3}; shadows {4} light(s), {5} cascade(s), main map {6}; motion blur {7:0.##}; scale {8:0.###}",
 				pipeline != null ? pipeline.name : "none",
 				camera.TryGetComponent<UniversalAdditionalCameraData>(out var data) ? data.antialiasing.ToString() : "?",
 				bloom != null && bloom.active ? bloom.intensity.value : 0f,
 				features.Count > 0 ? string.Join("+", features) : "none",
 				shadowLights, pipeline != null ? pipeline.shadowCascadeCount : 0, pipeline != null ? pipeline.mainLightShadowmapResolution : 0,
 				blur != null && blur.active ? blur.intensity.value : 0f,
-				pipeline != null ? pipeline.renderScale : 1f);
+				pipeline != null ? pipeline.renderScale : 1f,
+				paths.Count > 0 ? string.Join("+", paths) : "none");
+		}
+
+		// What a feature's cost hangs on: the steps a reflection ray may take, and the size and blur the
+		// ambient occlusion works with. Both types keep that to themselves, so it is read by name.
+		private static string DescribeFeature(ScriptableRendererFeature feature, VolumeStack stack)
+		{
+			const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic;
+			try {
+				switch (feature.GetType().FullName) {
+					case "UniversalScreenSpaceReflection.ScreenSpaceReflection": {
+						var type = feature.GetType().Assembly.GetType(ReflectionVolumeType);
+						var volume = type != null ? stack?.GetComponent(type) : null;
+						return volume?.GetType().GetField("rayMaxIterations")?.GetValue(volume) is VolumeParameter<int> steps ? $" ({steps.value} steps)" : "";
+					}
+					case "UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion": {
+						var settings = feature.GetType().GetField("m_Settings", fields)?.GetValue(feature);
+						if (settings == null) {
+							return "";
+						}
+						var downsample = settings.GetType().GetField("Downsample", fields)?.GetValue(settings);
+						var blurQuality = settings.GetType().GetField("BlurQuality", fields)?.GetValue(settings);
+						return $" ({(downsample is true ? "half" : "full")} size, {blurQuality} blur)";
+					}
+				}
+			} catch (System.Exception e) when (e is System.Reflection.TargetException || e is System.FieldAccessException) {
+				// a build that stripped or renamed the field: the feature's name still says it ran
+			}
+			return "";
 		}
 
 		// SSR and SSAO are renderer features of the active pipeline asset's renderers, which a tier can come
@@ -376,9 +407,17 @@ namespace VisualPinball.Unity.Urp
 		}
 
 		// The SSR feature is an optional third-party assembly, so its volume component is found by name. Its
-		// rays take up to 256 steps as it comes; Medium and Low cut them short, which mostly shortens long
-		// reflections.
+		// rays take up to 256 steps as it comes, and most of them take them all: the cost grows with the
+		// limit (measured at 1440p on an RTX 2080 Ti: 1.3 ms with 64 steps, 3.8 ms with 256) while the picture
+		// hardly does (0.4 % of its pixels differ between the two). The limits are HDRP's, whose tracing this
+		// is; fewer steps mostly shorten long reflections.
 		private const string ReflectionVolumeType = "UniversalScreenSpaceReflection.ScreenSpaceReflectionVolume";
+
+		internal static int ReflectionRaySteps(VpeReflectionQuality quality) => quality switch {
+			VpeReflectionQuality.High => 64,
+			VpeReflectionQuality.Medium => 32,
+			_ => 16,
+		};
 
 		private static void ApplyReflectionQuality(VolumeProfile profile, VpeReflectionQuality quality)
 		{
@@ -389,11 +428,7 @@ namespace VisualPinball.Unity.Urp
 				if (component.GetType().GetField("rayMaxIterations")?.GetValue(component) is not VolumeParameter<int> iterations) {
 					continue;
 				}
-				if (quality == VpeReflectionQuality.High) {
-					Release(iterations);
-				} else {
-					Force(component, iterations, quality == VpeReflectionQuality.Medium ? 128 : 64);
-				}
+				Force(component, iterations, ReflectionRaySteps(quality));
 			}
 		}
 
