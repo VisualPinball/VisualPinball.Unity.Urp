@@ -128,7 +128,9 @@ namespace VisualPinball.Unity.Urp
 						}
 						var downsample = settings.GetType().GetField("Downsample", fields)?.GetValue(settings);
 						var blurQuality = settings.GetType().GetField("BlurQuality", fields)?.GetValue(settings);
-						return $" ({(downsample is true ? "half" : "full")} size, {blurQuality} blur)";
+						// before the lighting it needs the scene's normals ahead of the G-buffer, which draws the scene twice
+						var afterOpaque = settings.GetType().GetField("AfterOpaque", fields)?.GetValue(settings);
+						return $" ({(downsample is true ? "half" : "full")} size, {blurQuality} blur, {(afterOpaque is true ? "after opaques" : "in the lighting")})";
 					}
 				}
 			} catch (System.Exception e) when (e is System.Reflection.TargetException || e is System.FieldAccessException) {
